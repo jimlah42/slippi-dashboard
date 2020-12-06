@@ -1,36 +1,43 @@
-import React, { Component } from "react";
-import logo from './logo.svg';
+import React, { useState } from "react";
+//import logo from './logo.svg';
 import './App.css';
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { apiResponse: "" };
-  }
-  
-  callAPI() {
-    fetch("http://localhost:9000/testAPI")
-        .then(res => res.text())
-        .then(res => this.setState({ apiResponse: res }));
-  }
-  
-  componentWillMount() {
-    this.callAPI();
+import sendAsync from './message-control/renderer';
+
+function App() {
+  const [message, setMessage] = useState('SELECT * FROM Games');
+  const [response, setResponse] = useState([]);
+
+  function send(sql) {
+      sendAsync(sql).then((result) => setResponse(result));
   }
 
-  render() {
-    return (
-      <div className="App">
+  return (
+    <div className="App">
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            {this.state.apiResponse}
-          </p>
+            <h1>
+                SlippiDashBoard
+            </h1>
         </header>
-      </div>
-    );
-  }
+        <article>
+            <input
+                type="text"
+                value={message}
+                onChange={({ target: { value } }) => setMessage(value)}
+            />
+            <button type="button" onClick={() => send(message)}>
+                Send
+            </button>
+            <br />
+            <p>Main process responses:</p>
+            <br />
+            <pre>
+                {(response && JSON.stringify(response, null, 2)) ||
+                    'No query results yet!'}
+            </pre>
+        </article>
+    </div>
+);
 }
-
 
 export default App;

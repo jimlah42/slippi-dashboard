@@ -1,1 +1,5 @@
 *.code-workspace
+client/.eslintcache
+
+client/public/db.sqlite3
+
