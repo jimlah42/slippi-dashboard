@@ -1,5 +1,5 @@
-const { openFolder, openFile } = require('../src/file-handling/loadFiles');
-const { app, BrowserWindow, Menu } = require('electron');
+const { checkNewFiles } = require('../src/file-handling/loadFiles');
+const { app, BrowserWindow, ipcMain, Menu } = require('electron');
 const path = require('path');
 const isDev = require('electron-is-dev');
 
@@ -10,6 +10,7 @@ const isMac = process.platform === 'darwin'
 
 let mainWindow;
 let loadingWindow;
+let workerWindow;
 
 function createWindow() {
     mainWindow = new BrowserWindow({ 
@@ -25,6 +26,12 @@ function createWindow() {
             ? 'http://localhost:3000'
             : `file://${path.join(__dirname, '../build/index.html')}`
     );
+
+    workerWindow = new BrowserWindow({
+      show: true,
+      webPreferences: { nodeIntegration: true }
+    });
+    workerWindow.loadURL(`file://${path.join(__dirname, './worker.html')}`);
     
     const template = [
       // { role: 'appMenu' }
@@ -47,16 +54,9 @@ function createWindow() {
         label: 'File',
         submenu: [
           { 
-            label: "Open File",
-            accelerator: 'CmdOrCtrl+O',
+            label: "Check for new Files" ,
             click() {
-              openFile(mainWindow);
-            } 
-          },
-          { 
-            label: "Open Folder" ,
-            click() {
-              openFolder(mainWindow);
+              checkNewFiles();
             }
           },
           isMac ? { role: 'close' } : { role: 'quit' }
@@ -148,10 +148,13 @@ function createWindow() {
     
     mainWindow.on('closed', () => {
         mainWindow = null;
+        if (!isMac) {
+          app.quit();
+      }
     });
 }
 
-function createLoadingWindow() {
+async function createLoadingWindow() {
   loadingWindow = new BrowserWindow({ 
     width: 200,
     height: 400 ,
@@ -162,15 +165,26 @@ function createLoadingWindow() {
     }
   });
   loadingWindow.setResizable(false);
-  loadingWindow.loadFile('./loading.html');
+  loadingWindow.loadURL(`file://${path.join(__dirname, './loading.html')}`);
   loadingWindow.on('closed', () => (loadingWindow = null));
   loadingWindow.webContents.on('did-finish-load', () => {
     loadingWindow.show();
   });
+
 };
+
+function sendWindowMessage(targetWindow, message, payload) {
+  if(typeof targetWindow === 'undefined') {
+    console.log('Target window does not exist');
+    return;
+  }
+  targetWindow.webContents.send(message, payload);
+}
+
 app.on('ready', () => {
     createLoadingWindow();
     createWindow();
+
 });
 
 app.on('window-all-closed', () => {
@@ -184,3 +198,7 @@ app.on('activate', () => {
         createWindow();
     }
 });
+
+ipcMain.on('check-new-files', function(event){
+    sendWindowMessage(workerWindow, 'check-new-files', 'payload')
+  })
