@@ -9,6 +9,7 @@ require('../src/message-control/main');
 const isMac = process.platform === 'darwin'
 
 let mainWindow;
+let loadingWindow;
 
 function createWindow() {
     mainWindow = new BrowserWindow({ 
@@ -16,7 +17,8 @@ function createWindow() {
       height: 680 ,
       webPreferences: {
         nodeIntegration: true,
-      }
+      },
+      show: false
     });
     mainWindow.loadURL(
         isDev
@@ -135,13 +137,41 @@ function createWindow() {
     ];
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
+
+    mainWindow.webContents.on('did-finish-load', () => {
+      /// then close the loading screen window and show the main window
+      if (loadingWindow) {
+        loadingWindow.close();
+      }
+      mainWindow.show();
+    });
     
     mainWindow.on('closed', () => {
         mainWindow = null;
     });
 }
 
-app.on('ready', createWindow);
+function createLoadingWindow() {
+  loadingWindow = new BrowserWindow({ 
+    width: 200,
+    height: 400 ,
+    frame: false,
+    tansparent: true,
+    webPreferences: {
+      nodeIntegration: true,
+    }
+  });
+  loadingWindow.setResizable(false);
+  loadingWindow.loadFile('./loading.html');
+  loadingWindow.on('closed', () => (loadingWindow = null));
+  loadingWindow.webContents.on('did-finish-load', () => {
+    loadingWindow.show();
+  });
+};
+app.on('ready', () => {
+    createLoadingWindow();
+    createWindow();
+});
 
 app.on('window-all-closed', () => {
     if (!isMac) {
