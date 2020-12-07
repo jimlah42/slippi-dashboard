@@ -1,11 +1,7 @@
-//const readFile = require('../src/file-handling/readFile');
-const { app, BrowserWindow, dialog, Menu } = require('electron');
-const { default: SlippiGame } = require('@slippi/slippi-js');
-
-
+const { openFolder, openFile } = require('../src/file-handling/loadFiles');
+const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
 const isDev = require('electron-is-dev');
-
 
 require('../src/message-control/main');
 
@@ -52,10 +48,15 @@ function createWindow() {
             label: "Open File",
             accelerator: 'CmdOrCtrl+O',
             click() {
-              openFile();
+              openFile(mainWindow);
             } 
           },
-          { label: "Open Folder" },
+          { 
+            label: "Open Folder" ,
+            click() {
+              openFolder(mainWindow);
+            }
+          },
           isMac ? { role: 'close' } : { role: 'quit' }
         ]
       },
@@ -153,20 +154,3 @@ app.on('activate', () => {
         createWindow();
     }
 });
-
-function openFile() {
-  dialog.showOpenDialog(mainWindow, {
-    properties: ['openFile'],
-    filters: [{ name: 'Slippi', extensions: ['slp'] }]
-  }).then(result => {
-    console.log(result.canceled)
-    console.log(result.filePaths)
-    const game = new SlippiGame(result.filePaths.toString());
-
-    console.log(game.getStats().overall);
-
-    return(result.filePaths)
-  }).catch(err => {
-    console.log(err)
-  })
-}
