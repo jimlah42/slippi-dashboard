@@ -11,6 +11,8 @@ const isMac = process.platform === 'darwin'
 let mainWindow;
 let loadingWindow;
 let workerWindow;
+var filesLoaded = false;
+var mWinReady = false;
 
 function createWindow() {
     mainWindow = new BrowserWindow({ 
@@ -139,11 +141,19 @@ function createWindow() {
     Menu.setApplicationMenu(menu);
 
     mainWindow.webContents.on('did-finish-load', () => {
-      /// then close the loading screen window and show the main window
-      if (loadingWindow) {
+      if (filesLoaded) {
         loadingWindow.close();
+        mainWindow.show();
       }
-      mainWindow.show();
+      mWinReady = true;
+      //mainWindow.show();
+    });
+
+    mainWindow.on('loading-finished', () => {
+      if (mWinReady) {
+        loadingWindow.close();
+        mainWindow.show();
+      }
     });
     
     mainWindow.on('closed', () => {
@@ -164,17 +174,22 @@ async function createLoadingWindow() {
       nodeIntegration: true,
     }
   });
-  loadingWindow.setResizable(false);
+  loadingWindow.setResizable(true);
   loadingWindow.loadURL(`file://${path.join(__dirname, './loading.html')}`);
   loadingWindow.on('closed', () => (loadingWindow = null));
   loadingWindow.webContents.on('did-finish-load', () => {
     loadingWindow.show();
+    sendWindowMessage(workerWindow, 'check-new-files', 'payload');
   });
 
 };
 
 function sendWindowMessage(targetWindow, message, payload) {
   if(typeof targetWindow === 'undefined') {
+    console.log('Target window does not exist');
+    return;
+  }
+  if(!targetWindow) {
     console.log('Target window does not exist');
     return;
   }
@@ -201,4 +216,25 @@ app.on('activate', () => {
 
 ipcMain.on('check-new-files', function(event){
     sendWindowMessage(workerWindow, 'check-new-files', 'payload')
-  })
+});
+
+ipcMain.on('loading-new-files', function(event){
+  console.log('Sent loading-new-files');
+  sendWindowMessage(loadingWindow, 'loading-new-files', { noOfFiles: 10 });
+});
+
+ipcMain.on('loaded-new-file', function(event){
+  console.log('Sent loaded-new-file');
+  sendWindowMessage(loadingWindow, 'loaded-new-file', '');
+});
+
+ipcMain.on('loading-finished', function(event){
+  console.log('Loading-Finished');
+  filesLoaded = true;
+  sendWindowMessage(mainWindow, 'loading-finished', '');
+});
+
+
+
+
+
