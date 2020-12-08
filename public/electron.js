@@ -142,7 +142,9 @@ function createWindow() {
 
     mainWindow.webContents.on('did-finish-load', () => {
       if (filesLoaded) {
-        loadingWindow.close();
+        if(loadingWindow) {
+          loadingWindow.close();
+        }
         mainWindow.show();
       }
       mWinReady = true;
