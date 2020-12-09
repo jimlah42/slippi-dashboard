@@ -48,8 +48,20 @@ function insertFile(gameInfo) {
                         return console.log(err.message);
                       }
                       // get the last insert id
-                      console.log(`A row has been inserted with rowid ${this.lastID}`);
-                      resolve('OK');
+                      const lastID = this.lastID;
+                      console.log(`A row has been inserted into Games with rowid ${this.lastID}, ${gameInfo.FileName}`);
+
+                      database.run(`INSERT INTO "main"."GameStats" ("id", "totalDmg", "Kills", "Openings", "IPM", "NeutralOp", "CHOpening") VALUES(?,?,?,?,?,?,?)`,
+                            [lastID, gameInfo.TotalDmg, gameInfo.Kills, gameInfo.Openings, gameInfo.IPM, gameInfo.NeutralOp, gameInfo.CHOpening], function(err) {
+                        if (err) {
+                            return console.log(err.message);
+                            
+                        }
+                        console.log(`A row has been inserted into GameStats with rowid ${lastID}, ${gameInfo.FileName}`);
+                        resolve('OK');
+                        
+                    });
+
                     });
     });
 }
@@ -115,24 +127,47 @@ function readFile(rootDir, file) {
     const settings = game.getSettings();
     const stats = game.getStats();
     console.timeEnd('SlippiGet');
+  
 
     console.time('SlippiBuild');
     const players = metadata.players;
     const playerId = (players[0].names.code === PLAYER_CODE) ? 0 : 1;
     const oppId = (players[0].names.code === PLAYER_CODE) ? 1 : 0;
+
+    const playerStats = stats.overall[playerId];
    
     var Win;
 
-    if (stats.overall[playerId].killCount === 4) { Win = 1 } else { Win = 0};
+    if (stats.overall[playerId].killCount === 4) { 
+        Win = 1 ;
+    } else { 
+        if(stats.overall[oppId].killCount === 4){
+            Win = 0;
+        } else {
+            return;
+        }
+    };
+
+
+
 
     const gameInfo = {
+        //Games Table
         StartTime: metadata.startAt,
         Character: getCharNameByIndex(settings.players[playerId].characterId),
         OppCharacter: getCharNameByIndex(settings.players[oppId].characterId),
         Stage: getStageNameByIndex(settings.stageId),
         Duration: duration,
         DidWin: Win,
-        FileName: file
+        FileName: file,
+        //GameStats Table
+        TotalDmg: playerStats.totalDamage,
+        Kills: playerStats.killCount,
+        Openings: playerStats.conversionCount,
+        convertedOpenings: playerStats.successfulConversions.count,
+        IPM: playerStats.inputsPerMinute.ratio,
+        NeutralOp: playerStats.neutralWinRatio.count,
+        CHOpening: playerStats.counterHitRatio.count
     }
     console.timeEnd('SlippiBuild');
 

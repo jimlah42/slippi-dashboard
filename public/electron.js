@@ -34,6 +34,9 @@ function createWindow() {
       webPreferences: { nodeIntegration: true }
     });
     workerWindow.loadURL(`file://${path.join(__dirname, './worker.html')}`);
+    workerWindow.webContents.on('did-finish-load', () => {
+        sendWindowMessage(workerWindow, 'check-new-files', 'payload');
+    });
     
     const template = [
       // { role: 'appMenu' }
@@ -181,7 +184,6 @@ async function createLoadingWindow() {
   loadingWindow.on('closed', () => (loadingWindow = null));
   loadingWindow.webContents.on('did-finish-load', () => {
     loadingWindow.show();
-    sendWindowMessage(workerWindow, 'check-new-files', 'payload');
   });
 
 };
