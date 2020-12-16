@@ -155,10 +155,7 @@ function createWindow() {
     });
 
     mainWindow.on('loading-finished', () => {
-      if (mWinReady) {
-        loadingWindow.close();
-        mainWindow.show();
-      }
+            
     });
     
     mainWindow.on('closed', () => {
@@ -235,6 +232,10 @@ ipcMain.on('loaded-new-file', function(event){
 ipcMain.on('loading-finished', function(event){
   console.log('Loading-Finished');
   filesLoaded = true;
+      if (mWinReady) {
+        loadingWindow.close();
+        mainWindow.show();
+      }
   sendWindowMessage(mainWindow, 'loading-finished', '');
 });
 
