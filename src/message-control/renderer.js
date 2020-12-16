@@ -6,3 +6,11 @@ ipcRenderer.on('message-from-worker', (event, arg) => {
     console.log('My param:', payload.myParam);
     console.log('Another param:', payload.anotherParam);
   });
+
+ipcRenderer.on('win/loss', (event, arg) => {
+  console.log(arg.wins + '/' + arg.losses);
+});
+
+export default function send(msgType, args) {
+  ipcRenderer.send(msgType, args);
+}

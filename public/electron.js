@@ -240,6 +240,18 @@ ipcMain.on('loading-finished', function(event){
 });
 
 
+ipcMain.on('get-w/l', (event, arg) => {
+  console.log(arg);
+  sendWindowMessage(workerWindow, 'get-w/l', arg);
+});
+
+
+ipcMain.on('win/loss', (event, arg) => {
+  console.log(arg);
+  sendWindowMessage(mainWindow, 'win/loss', arg);
+});
+
+
 
 
 
