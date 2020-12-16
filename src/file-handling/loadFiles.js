@@ -42,25 +42,15 @@ function getCurrentFiles() {
 
 function insertFile(gameInfo) {
     return new Promise(function(resolve) {
-        database.run(`INSERT INTO "main"."Games" ("StartTime", "Character", "OppCharacter", "Stage", "Duration", "DidWin", "FileName") VALUES(?,?,?,?,?,?,?)`,
-                   [gameInfo.StartTime, gameInfo.Character, gameInfo.OppCharacter, gameInfo.Stage, gameInfo.Duration, gameInfo.DidWin, gameInfo.FileName], function(err) {
+        database.run(`INSERT INTO "main"."Games" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+                   [gameInfo.StartTime, gameInfo.Character, gameInfo.OppCharacter, gameInfo.Stage, gameInfo.Duration, gameInfo.DidWin, gameInfo.Kills, gameInfo.TotalDmg, gameInfo.Openings, gameInfo.Conversions, gameInfo.NeutralOp, gameInfo.NeutralOpTotal, gameInfo.CHOpening, gameInfo.CHOpeningTotal, gameInfo.beneficalTrades, gameInfo.beneficalTradesTotal, gameInfo.IPM, gameInfo.FileName], function(err) {
                       if (err) {
                         return console.log(err.message);
                       }
                       // get the last insert id
-                      const lastID = this.lastID;
                       console.log(`A row has been inserted into Games with rowid ${this.lastID}, ${gameInfo.FileName}`);
 
-                      database.run(`INSERT INTO "main"."GameStats" ("id", "totalDmg", "Kills", "Openings", "IPM", "NeutralOp", "CHOpening") VALUES(?,?,?,?,?,?,?)`,
-                            [lastID, gameInfo.TotalDmg, gameInfo.Kills, gameInfo.Openings, gameInfo.IPM, gameInfo.NeutralOp, gameInfo.CHOpening], function(err) {
-                        if (err) {
-                            return console.log(err.message);
-                            
-                        }
-                        console.log(`A row has been inserted into GameStats with rowid ${lastID}, ${gameInfo.FileName}`);
-                        resolve('OK');
-                        
-                    });
+                      resolve('OK');
 
                     });
     });
@@ -159,15 +149,18 @@ function readFile(rootDir, file) {
         Stage: getStageNameByIndex(settings.stageId),
         Duration: duration,
         DidWin: Win,
-        FileName: file,
-        //GameStats Table
-        TotalDmg: playerStats.totalDamage,
         Kills: playerStats.killCount,
+        TotalDmg: playerStats.totalDamage,
         Openings: playerStats.conversionCount,
-        convertedOpenings: playerStats.successfulConversions.count,
-        IPM: playerStats.inputsPerMinute.ratio,
+        Conversions: playerStats.successfulConversions.count,
         NeutralOp: playerStats.neutralWinRatio.count,
-        CHOpening: playerStats.counterHitRatio.count
+        NeutralOpTotal: playerStats.neutralWinRatio.total,
+        CHOpening: playerStats.counterHitRatio.count,
+        CHOpeningTotal: playerStats.counterHitRatio.total,
+        beneficalTrades: playerStats.beneficialTradeRatio.count,
+        beneficalTradesTotal: playerStats.beneficialTradeRatio.total,
+        IPM: playerStats.inputsPerMinute.ratio,
+        FileName: file
     }
     console.timeEnd('SlippiBuild');
 
