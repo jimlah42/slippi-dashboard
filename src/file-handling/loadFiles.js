@@ -1,19 +1,21 @@
 const fs = require('fs');
 const path = require('path');
 var filesInDB = [];
-const sqlite3 = require('sqlite3');
 const { getCharNameByIndex } = require('../util/characters');
 const { getStageNameByIndex } = require('../util/stages');
 const { ipcRenderer } = require('electron');
+
+var knex = require("knex") ({
+    client: "sqlite3",
+    connection: {
+        filename: "./public/db.sqlite3"
+    }
+});
 
 const MIN_GAME_LENGTH_SECONDS = 30;
 //TODO Change to implement electron-settings
 const PLAYER_CODE = 'MARV#420';
 const SLIPPI_PATH = 'C:\\Users\\Johnathan\\Documents\\Slippi Test Folder\\';
-
-const database = new sqlite3.Database('./public/db.sqlite3', (err) => {
-    if (err) console.error('Database opening error: ', err);
-});
 
 async function checkNewFiles()  {
     var noOfFiles = 0;
@@ -25,10 +27,9 @@ async function checkNewFiles()  {
 
 function getCurrentFiles() {
     return new Promise(function(resolve) {
-        database.all('SELECT FileName FROM Games', (err, rows) => {
-            if (err) {
-                throw err;
-            }
+        let result = knex.select('FileName').from('Games');
+        result.then(function(rows) {
+            console.log(rows);
             console.log('Checking Files in DB');
             rows.forEach((row) => {
                 if (!filesInDB.includes(row)) {
@@ -36,23 +37,18 @@ function getCurrentFiles() {
                 }
             });
             resolve();
-        });
+        });        
     });
 }
 
 function insertFile(gameInfo) {
     return new Promise(function(resolve) {
-        database.run(`INSERT INTO "main"."Games" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-                   [gameInfo.StartTime, gameInfo.Character, gameInfo.OppCharacter, gameInfo.Stage, gameInfo.Duration, gameInfo.DidWin, gameInfo.Kills, gameInfo.TotalDmg, gameInfo.Openings, gameInfo.Conversions, gameInfo.NeutralOp, gameInfo.NeutralOpTotal, gameInfo.CHOpening, gameInfo.CHOpeningTotal, gameInfo.beneficalTrades, gameInfo.beneficalTradesTotal, gameInfo.IPM, gameInfo.FileName], function(err) {
-                      if (err) {
-                        return console.log(err.message);
-                      }
-                      // get the last insert id
-                      console.log(`A row has been inserted into Games with rowid ${this.lastID}, ${gameInfo.FileName}`);
-
-                      resolve('OK');
-
-                    });
+        knex('Games').insert(gameInfo).then(function(err) {
+            if (err) {
+                return console.log(err.message);
+            }
+            resolve();
+        });
     });
 }
 
@@ -150,7 +146,7 @@ function readFile(rootDir, file) {
         Duration: duration,
         DidWin: Win,
         Kills: playerStats.killCount,
-        TotalDmg: playerStats.totalDamage,
+        totalDmg: playerStats.totalDamage,
         Openings: playerStats.conversionCount,
         Conversions: playerStats.successfulConversions.count,
         NeutralOp: playerStats.neutralWinRatio.count,
