@@ -1,17 +1,24 @@
 import React, { Component } from "react";
 //import logo from './logo.svg';
 import './App.css';
-import sendMsg from './message-control/renderer';
+import { getWinLoss } from './message-control/renderer';
 
 class App extends Component {
-    constructor(props) {
-        super(props)
+    constructor() {
+        super()
         this.state = {
             Wins: 0,
             Losses: 0,
         };
     }
- 
+    componentDidMount() {
+        this.getWL({Character: '*', OppCharacter: '*'});
+    }
+
+    async getWL(args) {
+        let response = await getWinLoss(args);
+        this.setState({Wins: response.wins, Losses: response.losses});
+    }
 
     render() {
         return (
@@ -20,7 +27,8 @@ class App extends Component {
                 <h1>
                     SlippiDashBoard
                 </h1>
-                <button type="button" onClick={() => sendMsg('get-w/l', {Character: 'Falco', OppCharacter: 'Falco'})}>Get W/L</button>
+                <button type="button" onClick={() => this.getWL({Character: 'Falco', OppCharacter: 'Marth'})}>Get W/L  F vs M</button>
+                <article>W{this.state.Wins}/{this.state.Losses}L</article>
                 </header>
             </div>
         );

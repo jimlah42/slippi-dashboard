@@ -13,6 +13,8 @@ let loadingWindow;
 let workerWindow;
 var filesLoaded = false;
 var mWinReady = false;
+global.workerWindow = null;
+global.mainWindow = null;
 
 function createWindow() {
     mainWindow = new BrowserWindow({ 
@@ -246,9 +248,9 @@ ipcMain.on('get-w/l', (event, arg) => {
 });
 
 
-ipcMain.on('win/loss', (event, arg) => {
+ipcMain.on('get-w/l-reply', (event, arg) => {
   console.log(arg);
-  sendWindowMessage(mainWindow, 'win/loss', arg);
+  sendWindowMessage(mainWindow, 'get-w/l-reply', arg);
 });
 
 
