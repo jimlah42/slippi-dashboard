@@ -5,12 +5,14 @@ const { getCharNameByIndex } = require('../util/characters');
 const { getStageNameByIndex } = require('../util/stages');
 const { ipcRenderer } = require('electron');
 
-var knex = require("knex") ({
-    client: "sqlite3",
-    connection: {
-        filename: "./public/db.sqlite3"
-    }
-});
+const db = require('../data/db-config.js');
+
+// var knex = require("knex") ({
+//     client: "sqlite3",
+//     connection: {
+//         filename: "./public/db.sqlite3"
+//     }
+// });
 
 const MIN_GAME_LENGTH_SECONDS = 30;
 //TODO Change to implement electron-settings
@@ -27,7 +29,7 @@ async function checkNewFiles()  {
 
 function getCurrentFiles() {
     return new Promise(function(resolve) {
-        let result = knex.select('FileName').from('Games');
+        let result = db.select('FileName').from('Games');
         result.then(function(rows) {
             console.log(rows);
             console.log('Checking Files in DB');
@@ -38,17 +40,6 @@ function getCurrentFiles() {
             });
             resolve();
         });        
-    });
-}
-
-function insertFile(gameInfo) {
-    return new Promise(function(resolve) {
-        knex('Games').insert(gameInfo).then(function(err) {
-            if (err) {
-                return console.log(err.message);
-            }
-            resolve();
-        });
     });
 }
 
@@ -64,7 +55,15 @@ function addNewFiles() {
                   //console.log(gameInfo);
                   games.push(gameInfo);
                   ipcRenderer.send('loaded-new-file');
-                  await insertFile(gameInfo);
+
+                  try {
+                    await db.transaction(async trx => {
+                        await db('Games').insert(gameInfo).transacting(trx);
+                    });
+                  } catch (error) {
+                      console.error(error);
+                  }
+                  //await insertFile(gameInfo);
                   
                   filesInDB.push(file);
               }
@@ -76,15 +75,6 @@ function addNewFiles() {
       });
     
 }
-
-// async function insertFiles(games) {
-//     for (const game of games) {
-//         console.log('loaded-new-file');
-//         await insertFile(game);
-//         console.log("after insert");
-//     }
-//     ipcRenderer.send('loading-finished');
-// }
 
 function readFile(rootDir, file) {
     console.time('SlippiTotal');

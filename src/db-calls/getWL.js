@@ -1,9 +1,4 @@
-var knex = require("knex") ({
-    client: "sqlite3",
-    connection: {
-        filename: "./public/db.sqlite3"
-    }
-});
+const db = require('../data/db-config.js');
 
 async function getWinLoss(params) {
   const wins = await getWins(params);
@@ -13,7 +8,7 @@ async function getWinLoss(params) {
 
 
 async function getWins(params) {
-    const result = await knex('Games').count({ Wins: '*' })
+    const result = await db('Games').count({ Wins: '*' })
         .where((builder) => {
             builder.where({DidWin: 1});
             if(params.Character !== '*') {
@@ -29,7 +24,7 @@ async function getWins(params) {
 }
 
 async function getLosses(params) {
-    const result = await knex('Games').count({ Losses: '*' })
+    const result = await db('Games').count({ Losses: '*' })
     .where((builder) => {
         builder.where({DidWin: 0});
         if(params.Character !== '*') {

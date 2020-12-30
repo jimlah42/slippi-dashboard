@@ -30,3 +30,6 @@ yarn-error.log*
 
 #workspace
 SlippiDashboard.code-workspace
+src/data/db.db3
+src/data/migrations/20201230112445_games-schema-update.js
+src/data/migrations/20201230095551_create-db.js
