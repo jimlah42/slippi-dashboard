@@ -1,0 +1,75 @@
+import type { MetadataType } from "@slippi/slippi-js";
+import { SlippiGame } from "@slippi/slippi-js";
+import _ from "lodash";
+import moment from "moment";
+import path from "path";
+
+import type { GameStats } from "./types";
+import { getCharNameByIndex } from "./utils/characters";
+import { getStageNameByIndex } from "./utils/stages";
+
+const MIN_GAME_LENGTH_SECONDS = 30;
+//TODO Change to implement electron-settings
+const PLAYER_CODE = "MARV#420";
+
+export async function loadFile(fullPath: string): Promise<GameStats | null> {
+  const filename = path.basename(fullPath);
+  const game = new SlippiGame(fullPath);
+
+  const metadata: MetadataType | null = game.getMetadata();
+
+  if (metadata === null) {
+    return null;
+  }
+
+  const duration = Math.round(metadata.lastFrame! / 60);
+
+  if (duration < MIN_GAME_LENGTH_SECONDS) {
+    return null;
+  }
+
+  const settings = game.getSettings()!;
+  const stats = game.getStats()!;
+  const gameEnd = game.getGameEnd()!;
+  const players = metadata.players;
+  const playerId = players![0].names!.code === PLAYER_CODE ? 0 : 1;
+  const oppId = players![0].names!.code === PLAYER_CODE ? 1 : 0;
+
+  const playerStats = stats.overall[playerId];
+  const oppStats = stats.overall[oppId];
+
+  const placements = gameEnd.placements!;
+  const didWin = placements[0].playerIndex == playerId ? 1 : 0;
+  //TODO extend dateTime to catch if file has been renamed
+  const asMoment = moment(metadata.startAt);
+  let dateTime;
+  if (asMoment.isValid()) {
+    dateTime = asMoment.local();
+  } else {
+    throw new Error("Failed to read date");
+  }
+
+  const gameStats: GameStats = {
+    startTime: dateTime.toISOString(),
+    Character: getCharNameByIndex(settings.players[playerId].characterId!),
+    OppCharacter: getCharNameByIndex(settings.players[oppId].characterId!),
+    Stage: getStageNameByIndex(settings.stageId!),
+    Duration: duration,
+    DidWin: didWin,
+    Kills: playerStats.killCount,
+    KillsConceded: oppStats.killCount,
+    TotalDmgDone: _.round(playerStats.totalDamage, 1),
+    TotalDmgTaken: _.round(oppStats.totalDamage, 1),
+    Conversions: playerStats.successfulConversions.count,
+    TotalOpenings: playerStats.successfulConversions.total,
+    NeutralWins: playerStats.neutralWinRatio.count,
+    NeutralLosses: oppStats.neutralWinRatio.count,
+    CHWins: playerStats.counterHitRatio.count,
+    CHLosses: oppStats.counterHitRatio.count,
+    GoodTrades: playerStats.beneficialTradeRatio.count,
+    BadTrades: oppStats.beneficialTradeRatio.count,
+    IPM: _.round(playerStats.inputsPerMinute.ratio!, 1),
+    FileName: filename,
+  };
+  return gameStats;
+}
