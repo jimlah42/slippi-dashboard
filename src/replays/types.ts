@@ -2,6 +2,7 @@ export interface GameStats {
   startTime: string;
   Character: string;
   OppCharacter: string;
+  OppCode: string;
   Stage: string;
   Duration: number;
   DidWin: number;

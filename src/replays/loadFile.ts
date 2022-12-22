@@ -62,6 +62,7 @@ export async function loadFile(fullPath: string): Promise<GameStats | null> {
     startTime: dateTime.toISOString(),
     Character: getCharNameByIndex(settings.players[playerId].characterId!),
     OppCharacter: getCharNameByIndex(settings.players[oppId].characterId!),
+    OppCode: settings.players[oppId].connectCode,
     Stage: getStageNameByIndex(settings.stageId!),
     Duration: duration,
     DidWin: didWin,

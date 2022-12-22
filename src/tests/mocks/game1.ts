@@ -4,6 +4,7 @@ export const game1: GameStats = {
   startTime: "2022-11-08T13:10:07.000Z",
   Character: "Falco",
   OppCharacter: "Falcon",
+  OppCode: "CARL#494",
   Stage: "Dream Land N64",
   Duration: 194,
   DidWin: 0,
