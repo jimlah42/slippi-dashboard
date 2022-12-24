@@ -1,3 +1,7 @@
+export interface FilesLoadResult {
+  files: GameStats[];
+  filesOmmitted: number;
+}
 export interface GameStats {
   startTime: string;
   Character: string;
