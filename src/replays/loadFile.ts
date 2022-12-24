@@ -10,8 +10,7 @@ import moment from "moment";
 import path from "path";
 
 import type { GameStats } from "./types";
-import { getCharNameByIndex } from "./utils/characters";
-import { getStageNameByIndex } from "./utils/stages";
+import { getCharNameByIndex, getStageNameByIndex } from "./utils";
 
 const MIN_GAME_LENGTH_SECONDS = 30;
 //TODO Change to implement electron-settings
