@@ -4,4 +4,5 @@ declare global {
   interface Window {
     electron: API;
   }
+  const REPLAYS_PATH = "src/tests/slp";
 }
