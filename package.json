@@ -36,7 +36,10 @@
     "start:main": "cross-env NODE_ENV=development electronmon -r ts-node/register/transpile-only .",
     "start:preload": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.preload.dev.ts",
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
-    "test": "jest"
+    "test": "jest",
+    "knex:migrate:make": "knex --knexfile ./src/data/knexfile.js migrate:make",
+    "knex:migrate:latest": "knex --knexfile ./src/data/knexfile.js migrate:latest",
+    "knex:migrate:rollback": "knex --knexfile ./src/data/knexfile.js migrate:rollback"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -105,12 +108,14 @@
     "electron-debug": "^3.2.0",
     "electron-log": "^4.4.8",
     "electron-updater": "^5.2.3",
+    "knex": "^2.4.2",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "os-name": "^5.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.3.0",
+    "sqlite3": "^5.1.4",
     "threads": "^1.7.0"
   },
   "devDependencies": {
@@ -125,6 +130,7 @@
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
     "@types/react-test-renderer": "^18.0.0",
+    "@types/sqlite3": "^3.1.8",
     "@types/terser-webpack-plugin": "^5.0.4",
     "@types/webpack-bundle-analyzer": "^4.4.2",
     "@typescript-eslint/eslint-plugin": "^5.33.1",

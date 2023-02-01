@@ -3,7 +3,7 @@ export interface FilesLoadResult {
   filesOmmitted: number;
 }
 export interface GameStats {
-  startTime: string;
+  StartTime: string;
   Character: string;
   OppCharacter: string;
   OppCode: string;
