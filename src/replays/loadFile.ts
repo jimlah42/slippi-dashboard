@@ -16,7 +16,7 @@ const MIN_GAME_LENGTH_SECONDS = 30;
 //TODO Change to implement electron-settings
 const PLAYER_CODE = "MARV#420";
 
-import db from "../data/db-config";
+// import db from "../data/db-setup";
 
 export async function loadFile(fullPath: string): Promise<GameStats | null> {
   const filename = path.basename(fullPath);
@@ -82,14 +82,6 @@ export async function loadFile(fullPath: string): Promise<GameStats | null> {
     IPM: _.round(playerStats.inputsPerMinute.ratio!, 1),
     FileName: filename,
   };
-
-  try {
-    const insert = await db("stats").insert(gameStats);
-    console.log(insert);
-  } catch (error) {
-    console.log("duplicate game");
-    return null;
-  }
   return gameStats;
 }
 

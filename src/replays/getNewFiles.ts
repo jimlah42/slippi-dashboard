@@ -2,7 +2,7 @@
 
 import * as fs from "fs-extra";
 
-import db from "../data/db-config";
+import dbInit from "../data/db-setup";
 
 export async function getNewFiles(folder: string): Promise<string[]> {
   const currentFiles = await getCurrentFiles();
@@ -18,19 +18,20 @@ export async function getNewFiles(folder: string): Promise<string[]> {
   }
 
   console.log(newFiles);
-
   return newFiles;
 }
 
 //TODO Gets all filenames from DB
 async function getCurrentFiles(): Promise<Set<string>> {
   const currentFiles = new Set<string>();
-  const filesInDB = await db("stats").select("FileName");
-  console.log(filesInDB);
-
-  for (let i = 0; i < filesInDB.length; i++) {
-    currentFiles.add(filesInDB[i].FileName);
+  const db = await dbInit();
+  const stmt = db.prepare("SELECT FileName FROM stats");
+  while (stmt.step()) {
+    const row = stmt.getAsObject();
+    const value = row.FileName as string;
+    currentFiles.add(value);
   }
+  stmt.free();
 
   return currentFiles;
 }
