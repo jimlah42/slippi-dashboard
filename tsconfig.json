@@ -32,7 +32,8 @@
     "skipLibCheck": true,
     "alwaysStrict": true,
     "strictFunctionTypes": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "exclude": ["test", "release/build", "release/app/dist", ".erb/dll"]
 }

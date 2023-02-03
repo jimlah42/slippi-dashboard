@@ -2,7 +2,8 @@
 
 import * as fs from "fs-extra";
 
-import dbInit from "../data/db-setup";
+import { dbSource } from "../data/datasouce";
+import { Stats } from "../data/entity/Stats";
 
 export async function getNewFiles(folder: string): Promise<string[]> {
   const currentFiles = await getCurrentFiles();
@@ -23,15 +24,14 @@ export async function getNewFiles(folder: string): Promise<string[]> {
 
 //TODO Gets all filenames from DB
 async function getCurrentFiles(): Promise<Set<string>> {
+  const db = await dbSource;
   const currentFiles = new Set<string>();
-  const db = await dbInit();
-  const stmt = db.prepare("SELECT FileName FROM stats");
-  while (stmt.step()) {
-    const row = stmt.getAsObject();
-    const value = row.FileName as string;
-    currentFiles.add(value);
+  const test = await db.manager.exists(Stats);
+  const result = await db.manager.createQueryBuilder(Stats, "stats").select("stats.FileName").getMany();
+  console.log("exists " + test + " res: " + result);
+  console.log(result);
+  for (let i = 0; i < result.length; i++) {
+    currentFiles.add(result[i].FileName);
   }
-  stmt.free();
-
   return currentFiles;
 }

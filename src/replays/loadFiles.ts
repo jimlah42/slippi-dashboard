@@ -1,3 +1,5 @@
+import { dbSource } from "../data/datasouce";
+import { Stats } from "../data/entity/Stats";
 import { loadFile } from "./loadFile";
 import type { FilesLoadResult, GameStats } from "./types";
 
@@ -9,7 +11,9 @@ export async function loadFiles(files: string[], path: string): Promise<FilesLoa
     };
   }
 
-  const gamesLoaded = [];
+  const db = await dbSource;
+
+  const gamesLoaded: GameStats[] = [];
   let failedLoads = 0;
 
   for (let i = 0; i < files.length; i++) {
@@ -18,7 +22,13 @@ export async function loadFiles(files: string[], path: string): Promise<FilesLoa
       failedLoads++;
       console.log(failedLoads);
     } else {
-      gamesLoaded.push(file);
+      try {
+        await db.createQueryBuilder().insert().into(Stats).values(file).execute();
+        gamesLoaded.push(file);
+      } catch {
+        console.log("dup file");
+        failedLoads++;
+      }
     }
   }
 
