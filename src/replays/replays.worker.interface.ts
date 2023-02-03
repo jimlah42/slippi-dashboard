@@ -1,7 +1,8 @@
 import electronLog from "electron-log";
-import type { RegisteredWorker } from "utils/registerWorker";
-import { registerWorker } from "utils/registerWorker";
+import { Worker } from "threads";
 
+import type { RegisteredWorker } from "../utils/registerWorker";
+import { registerWorker } from "../utils/registerWorker";
 import type { WorkerSpec } from "./replays.worker";
 
 export type ReplayWorker = RegisteredWorker<WorkerSpec>;

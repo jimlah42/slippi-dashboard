@@ -16,11 +16,11 @@ import log from "electron-log";
 import { autoUpdater } from "electron-updater";
 import path from "path";
 
+import { installModules } from "./installModules";
 import MenuBuilder from "./menu";
-import setupMainIpc from "./setup";
 import { resolveHtmlPath } from "./util";
 
-setupMainIpc();
+installModules();
 
 class AppUpdater {
   constructor() {

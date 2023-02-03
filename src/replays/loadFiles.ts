@@ -3,7 +3,7 @@ import { Stats } from "../data/entity/Stats";
 import { loadFile } from "./loadFile";
 import type { FilesLoadResult, GameStats } from "./types";
 
-export async function loadFiles(files: string[], path: string): Promise<FilesLoadResult> {
+export async function loadFiles(files: string[], folderPath: string): Promise<FilesLoadResult> {
   if (files.length < 0) {
     return {
       files: [],
@@ -17,7 +17,8 @@ export async function loadFiles(files: string[], path: string): Promise<FilesLoa
   let failedLoads = 0;
 
   for (let i = 0; i < files.length; i++) {
-    const file: GameStats | null = await loadFile(path + files[i]);
+    console.log(folderPath);
+    const file: GameStats | null = await loadFile(folderPath + files[i]);
     if (!file) {
       failedLoads++;
       console.log(failedLoads);
