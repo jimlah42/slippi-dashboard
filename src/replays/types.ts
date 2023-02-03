@@ -2,6 +2,12 @@ export interface FilesLoadResult {
   files: GameStats[];
   filesOmmitted: number;
 }
+
+export interface Progress {
+  current: number;
+  total: number;
+}
+
 export interface GameStats {
   StartTime: string;
   Character: string;
