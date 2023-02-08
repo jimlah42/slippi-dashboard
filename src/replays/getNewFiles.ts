@@ -1,5 +1,3 @@
-//TODO When DB implemented atm will just return all files in the folder
-
 import * as fs from "fs-extra";
 
 import { dbSource } from "../data/datasouce";
@@ -22,7 +20,6 @@ export async function getNewFiles(folder: string): Promise<string[]> {
   return newFiles;
 }
 
-//TODO Gets all filenames from DB
 async function getCurrentFiles(): Promise<Set<string>> {
   const db = await dbSource;
   const currentFiles = new Set<string>();

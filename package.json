@@ -39,7 +39,9 @@
     "test": "jest",
     "knex:migrate:make": "knex --knexfile ./src/data/knexfile.js migrate:make",
     "knex:migrate:latest": "knex --knexfile ./src/data/knexfile.js migrate:latest",
-    "knex:migrate:rollback": "knex --knexfile ./src/data/knexfile.js migrate:rollback"
+    "knex:migrate:rollback": "knex --knexfile ./src/data/knexfile.js migrate:rollback",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -55,7 +57,9 @@
       "prettier --ignore-path .eslintignore --single-quote --write"
     ]
   },
-  "browserslist": [],
+  "browserslist": [
+    "chrome 91"
+  ],
   "prettier": {
     "singleQuote": true,
     "overrides": [
@@ -72,7 +76,8 @@
   },
   "dependencies": {
     "@babel/core": "^7.20.12",
-    "@emotion/react": "^11.10.5",
+    "@mui/icons-material": "^5.11.0",
+    "@mui/material": "^5.11.8",
     "@slippi/slippi-js": "^6.6.0",
     "crypto-js": "^4.1.1",
     "electron-debug": "^3.2.0",
@@ -88,12 +93,24 @@
     "reflect-metadata": "^0.1.13",
     "sql.js": "^1.8.0",
     "threads": "^1.7.0",
-    "typeorm": "^0.3.11"
+    "typeorm": "^0.3.11",
+    "zustand": "^4.3.2"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.20.2",
     "@babel/preset-typescript": "^7.18.6",
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",
+    "@storybook/addon-actions": "^6.5.16",
+    "@storybook/addon-essentials": "^6.5.16",
+    "@storybook/addon-interactions": "^6.5.16",
+    "@storybook/addon-links": "^6.5.16",
+    "@storybook/builder-webpack5": "^6.5.16",
+    "@storybook/manager-webpack5": "^6.5.16",
+    "@storybook/preset-scss": "^1.0.3",
+    "@storybook/react": "^6.5.16",
+    "@storybook/testing-library": "^0.0.13",
     "@svgr/webpack": "^6.3.1",
     "@teamsupercell/typings-for-css-modules-loader": "^2.5.1",
     "@testing-library/jest-dom": "^5.16.5",
@@ -109,6 +126,7 @@
     "@types/webpack-bundle-analyzer": "^4.4.2",
     "@typescript-eslint/eslint-plugin": "^5.33.1",
     "@typescript-eslint/parser": "^5.33.1",
+    "babel-loader": "^8.3.0",
     "browserslist-config-erb": "^0.0.3",
     "chalk": "^4.1.2",
     "concurrently": "^7.3.0",
@@ -145,6 +163,7 @@
     "jest-environment-jsdom": "^28.1.3",
     "lint-staged": "^13.0.3",
     "mini-css-extract-plugin": "^2.6.1",
+    "node-polyfill-webpack-plugin": "^2.0.1",
     "prettier": "^2.7.1",
     "react-refresh": "^0.14.0",
     "react-test-renderer": "^18.2.0",
@@ -156,6 +175,8 @@
     "ts-jest": "^28.0.8",
     "ts-loader": "^9.3.1",
     "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.1.2",
+    "tsconfig-paths-webpack-plugin": "^4.0.0",
     "typescript": "^4.7.4",
     "url-loader": "^4.1.1",
     "webpack": "^5.74.0",
