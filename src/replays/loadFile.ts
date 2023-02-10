@@ -32,6 +32,7 @@ export async function loadFile(fullPath: string): Promise<GameStats | null> {
   const duration = Math.round(metadata.lastFrame! / 60);
 
   if (duration < MIN_GAME_LENGTH_SECONDS) {
+    console.log("Game filter for game length");
     return null;
   }
 

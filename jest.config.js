@@ -1,5 +1,14 @@
 /** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
+const path = require("path");
+const { pathsToModuleNameMapper } = require("ts-jest");
+const { compilerOptions } = require("./tsconfig.json");
 module.exports = {
+  globals: {
+    "ts-jest": {
+      diagnostics: false,
+    },
+  },
+  roots: ["<rootDir>/src"],
   preset: 'ts-jest',
   moduleDirectories: [
     "node_modules",
@@ -17,6 +26,7 @@ module.exports = {
     "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/.erb/mocks/fileMock.js",
     "\\.(css|less|sass|scss)$": "identity-obj-proxy",
     "uuid": require.resolve('uuid'),
+    ...pathsToModuleNameMapper(compilerOptions.paths, { prefix: path.join("<rootDir>/", compilerOptions.baseUrl) }),
   },
   setupFiles: [
     "./.erb/scripts/check-build-exists.ts"
@@ -26,10 +36,12 @@ module.exports = {
     url: "http://localhost/"
   },
   testPathIgnorePatterns: [
-    "release/app/dist"
+    "release/app/dist",
+    "src/test/__mocks__"
   ],
   transform: {
     "\\.(ts|tsx|js|jsx)$": "ts-jest"
-  }
+  },
+  transformIgnorePatterns: ["node_modules/(?!is-ip|ip-regex|super-regex|function-timeout|time-span|convert-hrtime|is-regexp|clone-regexp)"],
 
 };

@@ -3,6 +3,11 @@
     "target": "es2021",
     "module": "commonjs",
     "lib": ["dom", "es2021"],
+    "paths": {
+      "@/*": ["renderer/*"],
+      "@common/*": ["common/*"],
+      "@replays/*": ["replays/*"]
+    },
     "baseUrl": "./src",
     "outDir": "release/app/dist",
     "declaration": true,

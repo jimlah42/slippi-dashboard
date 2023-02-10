@@ -1,5 +1,5 @@
 export interface FilesLoadResult {
-  files: GameStats[];
+  filesLoaded: number;
   filesOmmitted: number;
 }
 

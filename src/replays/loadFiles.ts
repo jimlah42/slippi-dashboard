@@ -1,5 +1,5 @@
-import { exists } from "../common/exists";
 import { dbSource } from "../data/datasouce";
+import { Filtered } from "../data/entity/Filtered";
 import { Stats } from "../data/entity/Stats";
 import { loadFile } from "./loadFile";
 import type { FilesLoadResult, GameStats } from "./types";
@@ -11,12 +11,13 @@ export async function loadFiles(
 ): Promise<FilesLoadResult> {
   if (files.length < 0) {
     return {
-      files: [],
+      filesLoaded: 0,
       filesOmmitted: 0,
     };
   }
 
   const db = await dbSource;
+  // const db = dbSourceConfig;
 
   // const gamesLoaded: GameStats[] = [];
   let vaildLoads = 0;
@@ -24,38 +25,68 @@ export async function loadFiles(
 
   const fullSlippiPaths = files.map((fileName) => folderPath.concat(fileName));
 
-  const process = async (path: string) => {
+  callback(0, total);
+
+  const gamesList: GameStats[] = [];
+
+  const filesSeen = new Set<string>();
+
+  function addToBlackList(fileName: string) {
+    db.createQueryBuilder()
+      .insert()
+      .into(Filtered)
+      .values({ FileName: fileName })
+      .execute()
+      .catch(() => console.warn("Failed Load to filtered"));
+  }
+
+  const process = async (fileNameString: string) => {
     return new Promise<GameStats | null>((resolve) => {
       setImmediate(async () => {
-        const res = await loadFile(path);
+        const res = await loadFile(folderPath.concat(fileNameString));
         if (res == null) {
+          addToBlackList(fileNameString);
+          console.log("failed load");
           resolve(null);
-        }
-
-        try {
-          await db.createQueryBuilder().insert().into(Stats).values(res!).execute();
+        } else {
+          if (filesSeen.has(res.StartTime)) {
+            addToBlackList(fileNameString);
+            console.warn("Dupe File");
+            resolve(null);
+          } else {
+            filesSeen.add(res.StartTime);
+            db.createQueryBuilder()
+              .insert()
+              .into(Stats)
+              .values(res)
+              .execute()
+              .catch((err) => {
+                console.warn(err);
+                addToBlackList(fileNameString);
+              });
+          }
+          gamesList.push(res!);
           console.log("Loaded file to db");
           vaildLoads += 1;
           callback(vaildLoads, total);
           resolve(res);
-        } catch (err) {
-          resolve(null);
         }
       });
     });
   };
 
   console.log(fullSlippiPaths);
-
   const filePromise = Promise.all(
-    fullSlippiPaths.map((fullpath) => {
-      return process(fullpath);
+    files.map((fileName) => {
+      return process(fileName);
     }),
   );
 
-  const gamesLoaded = await filePromise;
+  await filePromise;
+
+  callback(total, total);
   return {
-    files: gamesLoaded.filter(exists),
+    filesLoaded: vaildLoads,
     filesOmmitted: total - vaildLoads,
   };
 }
