@@ -1,3 +1,4 @@
+import dashboardApi from "dashboard/api";
 import { contextBridge } from "electron";
 import log from "electron-log";
 import path from "path";
@@ -8,6 +9,7 @@ import commonApi from "./api";
 const api = {
   common: commonApi,
   replays: replaysApi,
+  dashboard: dashboardApi,
   path: {
     join: path.join,
   },

@@ -1,6 +1,5 @@
+import type { Progress } from "@replays/types";
 import { create } from "zustand";
-
-import type { Progress } from "../../../replays/types";
 
 type StoreState = {
   loading: boolean;

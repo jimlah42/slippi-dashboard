@@ -1,7 +1,7 @@
 import React from "react";
 import { useReplays } from "renderer/lib/hooks/useReplays";
 
-export const HelloWorld = () => {
+export const ReplayLoading = () => {
   React.useEffect(() => {
     console.log("rendered");
     window.electron.replays
@@ -11,6 +11,7 @@ export const HelloWorld = () => {
       })
       .catch((err) => console.warn(err));
   }, []);
+
   const LoadingBox = React.memo(function LoadingBox() {
     const progress = useReplays((store) => store.progress);
     return (
@@ -29,6 +30,7 @@ export const HelloWorld = () => {
     setState({ newFiles: await window.electron.replays.getNewFiles("src/tests/slpLarge") });
     console.log("Loading");
     await window.electron.replays.loadFiles(state.newFiles);
+    await window.electron.dashboard.refreshDB();
   };
   const check = async () => {
     setState({ newFiles: await window.electron.replays.getNewFiles("src/tests/slpLarge") });
