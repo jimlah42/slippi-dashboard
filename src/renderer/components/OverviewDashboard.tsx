@@ -3,16 +3,19 @@ import React from "react";
 import { useDashboard } from "../lib/hooks/useDashboard";
 
 export const OveriewDashboard = () => {
-  const getOpenings = useDashboard((store) => store.getOpenings);
+  const getSums = useDashboard((store) => store.getSums);
+  const getCounts = useDashboard((store) => store.getCounts);
   const getWinLoss = useDashboard((store) => store.getWinLoss);
 
   React.useEffect(() => {
     console.log("rendered");
-    getOpenings().catch(() => console.warn("getOpenings: err"));
+    getSums().catch(() => console.warn("getSums: err"));
+    getCounts().catch(() => console.warn("getCounts: err"));
     getWinLoss().catch(() => console.warn("getWinLoss: err"));
-  }, [getOpenings, getWinLoss]);
+  }, [getSums, getCounts, getWinLoss]);
 
-  const Openings = useDashboard((store) => store.totalOpenings);
+  const Sums = useDashboard((store) => store.Sums);
+  const Counts = useDashboard((store) => store.Counts);
   const Wins = useDashboard((store) => store.Wins);
   const Losses = useDashboard((store) => store.Losses);
   return (
@@ -20,7 +23,12 @@ export const OveriewDashboard = () => {
       <div>
         Wins: {Wins}, Losses: {Losses}
       </div>
-      <div>Openings: {Openings}</div>
+      <div>Openings: {Sums?.TotalOpenings}</div>
+      <div>Openings/Kill: {Sums != null ? Sums!.TotalOpenings / Sums!.TotalKills : 0}</div>
+      <div>
+        Most Played Character:{" "}
+        {Counts != null ? Counts.CharacterCount[0].Name + " Games:" + Counts.CharacterCount[0].Count : "n/a"}
+      </div>
     </div>
   );
 };

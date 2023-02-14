@@ -25,8 +25,8 @@ export async function loadFile(fullPath: string): Promise<GameStats | null> {
   const metadata: MetadataType | null = game.getMetadata();
 
   if (metadata === null) {
-    throw new Error("no metadata");
-    // return null;
+    console.warn("no metadata");
+    return null;
   }
 
   const duration = Math.round(metadata.lastFrame! / 60);

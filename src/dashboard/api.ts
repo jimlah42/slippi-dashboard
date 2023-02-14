@@ -1,4 +1,4 @@
-import { ipc_getOpenings, ipc_getWinLoss, ipc_refreshDB } from "./ipc";
+import { ipc_getCounts, ipc_getSums, ipc_getWinLoss, ipc_refreshDB } from "./ipc";
 import type { QueryParams } from "./types";
 
 export default {
@@ -6,8 +6,12 @@ export default {
     const { result } = await ipc_getWinLoss.renderer!.trigger(params);
     return result;
   },
-  async getOpenings(params: QueryParams) {
-    const { result } = await ipc_getOpenings.renderer!.trigger(params);
+  async getSums(params: QueryParams) {
+    const { result } = await ipc_getSums.renderer!.trigger(params);
+    return result;
+  },
+  async getCounts(params: QueryParams) {
+    const { result } = await ipc_getCounts.renderer!.trigger(params);
     return result;
   },
   async refreshDB(): Promise<void> {

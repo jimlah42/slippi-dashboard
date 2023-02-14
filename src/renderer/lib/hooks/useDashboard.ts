@@ -1,23 +1,26 @@
-import type { QueryParams } from "dashboard/types";
+import type { DataCounts, DataSums, QueryParams } from "dashboard/types";
 import { create } from "zustand";
 
 type StoreState = {
   Wins: number;
   Losses: number;
-  totalOpenings: number;
+  Sums: DataSums | null;
+  Counts: DataCounts | null;
   currentParams: QueryParams;
 };
 
 type StoreReducers = {
   getWinLoss: () => Promise<void>;
-  getOpenings: () => Promise<void>;
+  getSums: () => Promise<void>;
+  getCounts: () => Promise<void>;
   setParams: (params: QueryParams) => void;
 };
 
 const initialState: StoreState = {
   Wins: 0,
   Losses: 0,
-  totalOpenings: 0,
+  Sums: null,
+  Counts: null,
   currentParams: {},
 };
 
@@ -30,11 +33,17 @@ export const useDashboard = create<StoreState & StoreReducers>((set, get) => ({
     const { Wins, Losses } = await window.electron.dashboard.getWinLoss(currentParams);
     set({ Wins: Wins, Losses: Losses });
   },
-  getOpenings: async () => {
+  getSums: async () => {
     const { currentParams } = get();
-    console.log("useDashboard: getOpenings");
-    const { Openings } = await window.electron.dashboard.getOpenings(currentParams);
-    set({ totalOpenings: Openings });
+    console.log("useDashboard: getSums");
+    const sums = await window.electron.dashboard.getSums(currentParams);
+    set({ Sums: sums });
+  },
+  getCounts: async () => {
+    const { currentParams } = get();
+    console.log("useDashboard: getCounts");
+    const counts = await window.electron.dashboard.getCounts(currentParams);
+    set({ Counts: counts });
   },
 
   setParams: (params: QueryParams) => {

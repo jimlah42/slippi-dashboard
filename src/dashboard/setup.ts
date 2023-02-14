@@ -1,5 +1,5 @@
 import { createDashboardWorker } from "./dashboard.worker.interface";
-import { ipc_getOpenings, ipc_getWinLoss, ipc_refreshDB } from "./ipc";
+import { ipc_getCounts, ipc_getSums, ipc_getWinLoss, ipc_refreshDB } from "./ipc";
 
 export default function setupDashboardIpc() {
   const dashboardBrowerWorker = createDashboardWorker();
@@ -10,9 +10,15 @@ export default function setupDashboardIpc() {
     return result;
   });
 
-  ipc_getOpenings.main!.handle(async (params) => {
+  ipc_getSums.main!.handle(async (params) => {
     const worker = await dashboardBrowerWorker;
-    const result = await worker.getOpenings(params);
+    const result = await worker.getSums(params);
+    return result;
+  });
+
+  ipc_getCounts.main!.handle(async (params) => {
+    const worker = await dashboardBrowerWorker;
+    const result = await worker.getCounts(params);
     return result;
   });
 
