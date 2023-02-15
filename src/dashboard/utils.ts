@@ -5,7 +5,7 @@ import type { QueryParams } from "./types";
 
 export function buildQueryFromParams(query: SelectQueryBuilder<Stats>, params: QueryParams) {
   if (params.startDate != null) {
-    query.where("stats.startTime > :StartDate", { StartDate: params.startDate });
+    query.where("stats.startTime < :StartDate", { StartDate: params.startDate });
   }
   if (params.endDate != null) {
     query.andWhere("stats.startTime > :EndDate", { EndDate: params.endDate });

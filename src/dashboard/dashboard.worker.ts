@@ -47,7 +47,7 @@ const methods: WorkerSpec = {
     const db = await dbSource;
     const query = db.getRepository(Stats).createQueryBuilder("stats");
     query.select("COUNT(*)", "TotalGames");
-    query.addSelect("SUM(stats.Duration)", "TotalDurations");
+    query.addSelect("SUM(stats.Duration)", "TotalDuration");
     query.addSelect("SUM(stats.Kills)", "TotalKills");
     query.addSelect("SUM(stats.KillsConceded)", "TotalKillsConceded");
     query.addSelect("SUM(stats.TotalDmgDone)", "TotalDmgDone");
@@ -109,12 +109,16 @@ const methods: WorkerSpec = {
     const OppCodeCount = await oppCodeQuery.getRawMany();
     const StageCount = await stageQuery.getRawMany();
 
-    return {
+    const Count = {
       CharacterCount: CharacterCount,
       OppCharacterCount: OppCharacterCount,
       OppCodeCount: OppCodeCount,
       StageCount: StageCount,
     };
+
+    console.log(Count);
+
+    return Count;
   },
 };
 
