@@ -41,6 +41,14 @@ export const ReplayLoading = () => {
       <div>New Files: {state.newFiles.length}</div>
       <button onClick={check}>Check New Files</button>
       <button onClick={load}>Load</button>
+      <button
+        onClick={async () => {
+          await window.electron.replays.clearData();
+          await window.electron.dashboard.refreshDB();
+        }}
+      >
+        Clear Data
+      </button>
       <LoadingBox />
     </div>
   );

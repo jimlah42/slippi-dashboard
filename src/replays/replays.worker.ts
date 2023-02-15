@@ -1,3 +1,6 @@
+import { dbSource } from "data/datasouce";
+import { Filtered } from "data/entity/Filtered";
+import { Stats } from "data/entity/Stats";
 import type { ModuleMethods } from "threads/dist/types/master";
 import { Observable, Subject } from "threads/observable";
 import { expose } from "threads/worker";
@@ -8,9 +11,10 @@ import type { FilesLoadResult, Progress } from "./types";
 
 interface Methods {
   dispose: () => Promise<void>;
+  getProgressObservable(): Observable<Progress>;
   loadReplayFiles(files: string[]): Promise<FilesLoadResult>;
   getNewFilesInFolder(path: string): Promise<string[]>;
-  getProgressObservable(): Observable<Progress>;
+  clearData(): Promise<void>;
 }
 
 export type WorkerSpec = ModuleMethods & Methods;
@@ -39,6 +43,14 @@ const methods: WorkerSpec = {
   async getNewFilesInFolder(path: string): Promise<string[]> {
     const result = await getNewFiles(path);
     return result;
+  },
+
+  async clearData(): Promise<void> {
+    const db = await dbSource;
+    console.log("Clearing all data...");
+    await db.manager.clear(Stats);
+    await db.manager.clear(Filtered);
+    console.log("Data cleared");
   },
 };
 

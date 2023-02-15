@@ -1,4 +1,4 @@
-import { ipc_getNewFiles, ipc_loadProgressUpdatedEvent, ipc_loadReplayFiles } from "./ipc";
+import { ipc_clearData, ipc_getNewFiles, ipc_loadProgressUpdatedEvent, ipc_loadReplayFiles } from "./ipc";
 import type { Progress } from "./types";
 
 export default {
@@ -9,6 +9,9 @@ export default {
   async getNewFiles(path: string) {
     const { result } = await ipc_getNewFiles.renderer!.trigger({ path });
     return result;
+  },
+  async clearData() {
+    await ipc_clearData.renderer!.trigger({});
   },
 
   onReplayLoadProgressUpdate(handle: (progress: Progress) => void) {

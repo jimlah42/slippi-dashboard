@@ -1,4 +1,4 @@
-import { ipc_getNewFiles, ipc_loadProgressUpdatedEvent, ipc_loadReplayFiles } from "./ipc";
+import { ipc_clearData, ipc_getNewFiles, ipc_loadProgressUpdatedEvent, ipc_loadReplayFiles } from "./ipc";
 import { createReplayWorker } from "./replays.worker.interface";
 
 export default function setupReplayIpc() {
@@ -17,5 +17,11 @@ export default function setupReplayIpc() {
     const worker = await replayBrowserWorker;
     const result = await worker.getNewFilesInFolder(path);
     return result;
+  });
+
+  ipc_clearData.main!.handle(async () => {
+    const worker = await replayBrowserWorker;
+    await worker.clearData();
+    return { success: true };
   });
 }

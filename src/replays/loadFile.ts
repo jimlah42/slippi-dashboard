@@ -16,8 +16,6 @@ const MIN_GAME_LENGTH_SECONDS = 30;
 //TODO Change to implement electron-settings
 const PLAYER_CODE = "MARV#420";
 
-// import db from "../data/db-setup";
-
 export async function loadFile(fullPath: string): Promise<GameStats | null> {
   const filename = path.basename(fullPath);
   const game = new SlippiGame(fullPath);
@@ -44,6 +42,10 @@ export async function loadFile(fullPath: string): Promise<GameStats | null> {
   const stats = game.getStats()!;
   const gameEnd = game.getGameEnd()!;
   const players = metadata.players;
+  if (PLAYER_CODE != players![0].names!.code && PLAYER_CODE != players![1].names!.code) {
+    console.log("Not players game");
+    return null;
+  }
   const playerId = players![0].names!.code === PLAYER_CODE ? 0 : 1;
   const oppId = players![0].names!.code === PLAYER_CODE ? 1 : 0;
 
