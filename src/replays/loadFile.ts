@@ -13,20 +13,25 @@ import type { GameStats } from "./types";
 import { getCharNameByIndex, getStageNameByIndex } from "./utils";
 
 const MIN_GAME_LENGTH_SECONDS = 30;
-//TODO Change to implement electron-settings
-const PLAYER_CODE = "MARV#420";
 
-export async function loadFile(fullPath: string): Promise<GameStats | null> {
+export async function loadFile(fullPath: string, playerCode: string): Promise<GameStats | null> {
   const filename = path.basename(fullPath);
   const game = new SlippiGame(fullPath);
 
+  // const test = settingsManager.get().PlayerCode;
+  const PLAYER_CODE = playerCode;
+  // console.log("Player Code: " + test);
   const metadata: MetadataType | null = game.getMetadata();
 
   if (metadata === null) {
     console.warn("no metadata");
     return null;
   }
-
+  const players = metadata.players;
+  if (PLAYER_CODE != players![0].names!.code && PLAYER_CODE != players![1].names!.code) {
+    console.log("Not players game");
+    return null;
+  }
   const duration = Math.round(metadata.lastFrame! / 60);
 
   if (duration < MIN_GAME_LENGTH_SECONDS) {
@@ -41,11 +46,6 @@ export async function loadFile(fullPath: string): Promise<GameStats | null> {
   }
   const stats = game.getStats()!;
   const gameEnd = game.getGameEnd()!;
-  const players = metadata.players;
-  if (PLAYER_CODE != players![0].names!.code && PLAYER_CODE != players![1].names!.code) {
-    console.log("Not players game");
-    return null;
-  }
   const playerId = players![0].names!.code === PLAYER_CODE ? 0 : 1;
   const oppId = players![0].names!.code === PLAYER_CODE ? 1 : 0;
 

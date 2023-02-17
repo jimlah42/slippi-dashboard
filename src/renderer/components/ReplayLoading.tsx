@@ -1,13 +1,18 @@
 import React from "react";
 import { useReplays } from "renderer/lib/hooks/useReplays";
+import { useSettings } from "renderer/lib/hooks/useSettings";
+
+import type { FileWithPath } from "../../replays/types";
 
 export const ReplayLoading = () => {
+  const replaysPath = useSettings((store) => store.ReplaysPath);
+  const playerCode = useSettings((store) => store.PlayerCode);
   React.useEffect(() => {
     console.log("rendered");
     window.electron.replays
-      .getNewFiles("src/tests/slpLarge")
+      .getNewFiles(replaysPath)
       .then((res) => {
-        setState({ newFiles: res });
+        setState({ ...state, newFiles: res });
       })
       .catch((err) => console.warn(err));
   }, []);
@@ -22,18 +27,23 @@ export const ReplayLoading = () => {
   });
 
   interface State {
-    newFiles: string[];
+    newFiles: FileWithPath[];
+    filesLoaded: number;
+    filesOmitted: number;
   }
-  const [state, setState] = React.useState<State>({ newFiles: [] });
+
+  const [state, setState] = React.useState<State>({ newFiles: [], filesLoaded: 0, filesOmitted: 0 });
 
   const load = async () => {
-    setState({ newFiles: await window.electron.replays.getNewFiles("src/tests/slpLarge") });
+    setState({ ...state, newFiles: await window.electron.replays.getNewFiles(replaysPath) });
     console.log("Loading");
-    await window.electron.replays.loadFiles(state.newFiles);
+    const loaded = await window.electron.replays.loadFiles(state.newFiles, playerCode);
+
+    setState({ ...state, filesLoaded: loaded.filesLoaded, filesOmitted: loaded.filesOmmitted });
     await window.electron.dashboard.refreshDB();
   };
   const check = async () => {
-    setState({ newFiles: await window.electron.replays.getNewFiles("src/tests/slpLarge") });
+    setState({ ...state, newFiles: await window.electron.replays.getNewFiles(replaysPath) });
   };
 
   return (
@@ -41,6 +51,9 @@ export const ReplayLoading = () => {
       <div>New Files: {state.newFiles.length}</div>
       <button onClick={check}>Check New Files</button>
       <button onClick={load}>Load</button>
+      <div>
+        Vaild Files: {state.filesLoaded} Files Filtered: {state.filesOmitted}
+      </div>
       <button
         onClick={async () => {
           await window.electron.replays.clearData();

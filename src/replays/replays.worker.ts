@@ -7,14 +7,15 @@ import { expose } from "threads/worker";
 
 import { getNewFiles } from "./getNewFiles";
 import { loadFiles } from "./loadFiles";
-import type { FilesLoadResult, Progress } from "./types";
+import type { FilesLoadResult, FileWithPath, Progress } from "./types";
 
 interface Methods {
   dispose: () => Promise<void>;
   getProgressObservable(): Observable<Progress>;
-  loadReplayFiles(files: string[]): Promise<FilesLoadResult>;
-  getNewFilesInFolder(path: string): Promise<string[]>;
+  loadReplayFiles(files: FileWithPath[], playerCode: string): Promise<FilesLoadResult>;
+  getNewFilesInFolder(path: string): Promise<FileWithPath[]>;
   clearData(): Promise<void>;
+  refreshDB: () => Promise<void>;
 }
 
 export type WorkerSpec = ModuleMethods & Methods;
@@ -31,8 +32,8 @@ const methods: WorkerSpec = {
     return Observable.from(progressSubject);
   },
 
-  async loadReplayFiles(files: string[]): Promise<FilesLoadResult> {
-    const result = await loadFiles(files, "src/tests/slpLarge/", (current, total) => {
+  async loadReplayFiles(files: FileWithPath[], playerCode: string): Promise<FilesLoadResult> {
+    const result = await loadFiles(files, playerCode, (current, total) => {
       progressSubject.next({ current, total });
     });
     progressSubject.complete();
@@ -40,7 +41,7 @@ const methods: WorkerSpec = {
     return result;
   },
 
-  async getNewFilesInFolder(path: string): Promise<string[]> {
+  async getNewFilesInFolder(path: string): Promise<FileWithPath[]> {
     const result = await getNewFiles(path);
     return result;
   },
@@ -51,6 +52,13 @@ const methods: WorkerSpec = {
     await db.manager.clear(Stats);
     await db.manager.clear(Filtered);
     console.log("Data cleared");
+  },
+  async refreshDB(): Promise<void> {
+    console.log("Refreshing DB...");
+    const db = await dbSource;
+    await db.destroy();
+    await db.initialize();
+    console.log("Refreshed");
   },
 };
 

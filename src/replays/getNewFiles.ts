@@ -1,19 +1,27 @@
 import { Filtered } from "data/entity/Filtered";
 import * as fs from "fs-extra";
+import path from "path";
 
 import { dbSource } from "../data/datasouce";
 import { Stats } from "../data/entity/Stats";
+import type { FileWithPath } from "./types";
 
-export async function getNewFiles(folder: string): Promise<string[]> {
+export async function getNewFiles(folder: string): Promise<FileWithPath[]> {
   const currentFiles = await getCurrentFiles();
   const newFiles = [];
+  const subDirectorys: string[] = [];
 
-  const result = await fs.readdir(folder);
-  console.log(result);
-
-  for (let i = 0; i < result.length; i++) {
-    if (!currentFiles.has(result[i])) {
-      newFiles.push(result[i]);
+  subDirectorys.push(folder);
+  while (subDirectorys.length > 0) {
+    const currPath = subDirectorys.pop();
+    const result = await fs.readdir(currPath!, { withFileTypes: true });
+    for (let i = 0; i < result.length; i++) {
+      if (result[i].isDirectory()) {
+        console.log("Directory: " + result[i].name);
+        subDirectorys.push(path.join(currPath!, result[i].name));
+      } else if (result[i].isFile() && path.extname(result[i].name) && !currentFiles.has(result[i].name)) {
+        newFiles.push({ path: currPath!, fileName: result[i].name });
+      }
     }
   }
 
@@ -23,12 +31,9 @@ export async function getNewFiles(folder: string): Promise<string[]> {
 
 async function getCurrentFiles(): Promise<Set<string>> {
   const db = await dbSource;
-  // const db = dbSourceConfig;
   const currentFiles = new Set<string>();
-  const test = await db.manager.exists(Stats);
   const filtered = await db.manager.createQueryBuilder(Filtered, "filtered").select("filtered.FileName").getMany();
   const result = await db.manager.createQueryBuilder(Stats, "stats").select("stats.FileName").getMany();
-  console.log("exists " + test + " res: " + result);
   console.log(result);
 
   for (let i = 0; i < result.length; i++) {

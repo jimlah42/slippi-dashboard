@@ -9,4 +9,4 @@ export const ipc_getSums = makeEndpoint.main("getSums", <QueryParams>_, <DataSum
 
 export const ipc_getCounts = makeEndpoint.main("getCounts", <QueryParams>_, <DataCounts>_);
 
-export const ipc_refreshDB = makeEndpoint.main("refreshDB", <EmptyPayload>_, <SuccessPayload>_);
+export const ipc_refreshDB = makeEndpoint.main("refreshDBDash", <EmptyPayload>_, <SuccessPayload>_);

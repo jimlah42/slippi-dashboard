@@ -1,6 +1,7 @@
 import React from "react";
 
 import { useDashboard } from "../lib/hooks/useDashboard";
+import { round } from "../lib/round";
 
 export const OveriewDashboard = () => {
   const getSums = useDashboard((store) => store.getSums);
@@ -29,9 +30,9 @@ export const OveriewDashboard = () => {
         Wins: {Wins}, Losses: {Losses}
       </div>
       <div>Games Played: {Sums?.TotalGames}</div>
-      <div>Hours Played: {Sums?.TotalDuration != null ? Sums?.TotalDuration / 60 / 60 : 0}</div>
+      <div>Hours Played: {Sums?.TotalDuration != null ? round(Sums?.TotalDuration / 60 / 60, 2) : 0}</div>
       <div>Openings: {Sums?.TotalOpenings}</div>
-      <div>Openings/Kill: {Sums != null ? Sums!.TotalOpenings / Sums!.TotalKills : 0}</div>
+      <div>Openings/Kill: {Sums != null ? round(Sums!.TotalOpenings / Sums!.TotalKills, 2) : 0}</div>
       <div>
         Most Played Character:{" "}
         {Counts != null ? Counts?.CharacterCount[0]?.Name + " Games:" + Counts?.CharacterCount[0]?.Count : "n/a"}

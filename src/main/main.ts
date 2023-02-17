@@ -11,7 +11,8 @@
  */
 import "reflect-metadata";
 
-import { app, BrowserWindow, ipcMain, shell } from "electron";
+import { dbSourceConfig } from "data/datasouce";
+import { app, BrowserWindow, shell } from "electron";
 import log from "electron-log";
 import { autoUpdater } from "electron-updater";
 import path from "path";
@@ -31,12 +32,6 @@ class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
-
-ipcMain.on("ipc-example", async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply("ipc-example", msgTemplate("pong"));
-});
 
 if (process.env.NODE_ENV === "production") {
   const sourceMapSupport = require("source-map-support");
@@ -125,7 +120,16 @@ app.on("window-all-closed", () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
   if (process.platform !== "darwin") {
-    app.quit();
+    dbSourceConfig
+      .destroy()
+      .then(() => {
+        console.log("Disconnected from db");
+        app.quit();
+      })
+      .catch((err) => {
+        console.log(err);
+        app.quit();
+      });
   }
 });
 

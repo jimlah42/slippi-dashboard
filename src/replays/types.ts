@@ -3,6 +3,11 @@ export interface FilesLoadResult {
   filesOmmitted: number;
 }
 
+export interface FileWithPath {
+  path: string;
+  fileName: string;
+}
+
 export interface Progress {
   current: number;
   total: number;

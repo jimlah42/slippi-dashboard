@@ -23,6 +23,8 @@ export const usePlayerCode = () => {
   const playerCode = useSettings((store) => store.PlayerCode);
   const setPlayerCode = async (playerCode: string) => {
     await window.electron.settings.setPlayerCode(playerCode);
+    await window.electron.replays.clearData();
+    await window.electron.dashboard.refreshDB();
   };
   return [playerCode, setPlayerCode] as const;
 };
@@ -31,6 +33,8 @@ export const useReplaysPath = () => {
   const replaysPath = useSettings((store) => store.ReplaysPath);
   const setReplaysPath = async (replaysPath: string) => {
     await window.electron.settings.setReplaysPath(replaysPath);
+    await window.electron.replays.clearData();
+    await window.electron.dashboard.refreshDB();
   };
   return [replaysPath, setReplaysPath] as const;
 };

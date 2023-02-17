@@ -1,12 +1,14 @@
+import path from "path";
+
 import { dbSource } from "../data/datasouce";
 import { Filtered } from "../data/entity/Filtered";
 import { Stats } from "../data/entity/Stats";
 import { loadFile } from "./loadFile";
-import type { FilesLoadResult, GameStats } from "./types";
+import type { FilesLoadResult, FileWithPath, GameStats } from "./types";
 
 export async function loadFiles(
-  files: string[],
-  folderPath: string,
+  files: FileWithPath[],
+  playerCode: string,
   callback: (current: number, total: number) => void = () => null,
 ): Promise<FilesLoadResult> {
   if (files.length < 0) {
@@ -23,7 +25,8 @@ export async function loadFiles(
   let vaildLoads = 0;
   const total = files.length;
 
-  const fullSlippiPaths = files.map((fileName) => folderPath.concat(fileName));
+  // const fullSlippiPaths = files.map((fileName) => folderPath.concat(fileName));
+  const fullSlippiPaths = files;
 
   callback(0, total);
 
@@ -40,17 +43,17 @@ export async function loadFiles(
       .catch(() => console.warn("Failed Load to filtered"));
   }
 
-  const process = async (fileNameString: string) => {
+  const process = async (file: FileWithPath) => {
     return new Promise<GameStats | null>((resolve) => {
       setImmediate(async () => {
-        const res = await loadFile(folderPath.concat(fileNameString));
+        const res = await loadFile(path.join(file.path, file.fileName), playerCode);
         if (res == null) {
-          addToBlackList(fileNameString);
+          addToBlackList(file.fileName);
           console.log("failed load");
           resolve(null);
         } else {
           if (filesSeen.has(res.StartTime)) {
-            addToBlackList(fileNameString);
+            addToBlackList(file.fileName);
             console.warn("Dupe File");
             resolve(null);
           } else {
@@ -62,7 +65,7 @@ export async function loadFiles(
               .execute()
               .catch((err) => {
                 console.warn(err);
-                addToBlackList(fileNameString);
+                addToBlackList(file.fileName);
               });
           }
           gamesList.push(res!);
@@ -77,8 +80,8 @@ export async function loadFiles(
 
   console.log(fullSlippiPaths);
   const filePromise = Promise.all(
-    files.map((fileName) => {
-      return process(fileName);
+    files.map((file) => {
+      return process(file);
     }),
   );
 
