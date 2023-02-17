@@ -5,22 +5,23 @@ export interface QueryParams {
   OppCharacter?: string;
 }
 
-export interface DataSums {
+export interface DataAvgs {
   TotalGames: number;
-  TotalDuration: number;
-  TotalKills: number;
-  TotalKillsConceded: number;
-  TotalDmgDone: number;
-  TotalDmgTaken: number;
-  TotalConversions: number;
-  TotalOpenings: number;
-  TotalNeutralWins: number;
-  TotalNeutralLosses: number;
-  TotalCHWins: number;
-  TotalCHLosses: number;
-  TotalGoodTrades: number;
-  TotalBadTrades: number;
-  TotalIPM: number;
+  AvgDuration: number;
+  AvgKills: number;
+  AvgKillsConceded: number;
+  AvgTotalDmgDone: number;
+  AvgTotalDmgTaken: number;
+  AvgConversions: number;
+  AvgTotalOpenings: number;
+  AvgNeutralWins: number;
+  AvgNeutralLosses: number;
+  AvgCHWins: number;
+  AvgCHLosses: number;
+  AvgGoodTrades: number;
+  AvgBadTrades: number;
+  AvgLCancelSuccessRate: number;
+  AvgIPM: number;
 }
 
 export interface CountType {

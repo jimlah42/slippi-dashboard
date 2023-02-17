@@ -1,4 +1,4 @@
-import { ipc_getCounts, ipc_getSums, ipc_getWinLoss, ipc_refreshDB } from "./ipc";
+import { ipc_getAvgs, ipc_getCounts, ipc_getWinLoss, ipc_refreshDB } from "./ipc";
 import type { QueryParams } from "./types";
 
 export default {
@@ -6,8 +6,8 @@ export default {
     const { result } = await ipc_getWinLoss.renderer!.trigger(params);
     return result;
   },
-  async getSums(params: QueryParams) {
-    const { result } = await ipc_getSums.renderer!.trigger(params);
+  async getAvgs(params: QueryParams) {
+    const { result } = await ipc_getAvgs.renderer!.trigger(params);
     return result;
   },
   async getCounts(params: QueryParams) {

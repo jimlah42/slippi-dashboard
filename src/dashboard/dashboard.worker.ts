@@ -3,14 +3,14 @@ import { expose } from "threads";
 import type { ModuleMethods } from "threads/dist/types/master";
 
 import { Stats } from "../data/entity/Stats";
-import type { DataCounts, DataSums, QueryParams } from "./types";
+import type { DataAvgs, DataCounts, QueryParams } from "./types";
 import { buildQueryFromParams } from "./utils";
 
 interface Methods {
   dispose: () => Promise<void>;
   refreshDB: () => Promise<void>;
   getWinLoss(params: QueryParams): Promise<{ Wins: number; Losses: number }>;
-  getSums(params: QueryParams): Promise<DataSums>;
+  getAvgs(params: QueryParams): Promise<DataAvgs>;
   getCounts(params: QueryParams): Promise<DataCounts>;
 }
 
@@ -43,24 +43,25 @@ const methods: WorkerSpec = {
     };
   },
 
-  async getSums(params: QueryParams): Promise<DataSums> {
+  async getAvgs(params: QueryParams): Promise<DataAvgs> {
     const db = await dbSource;
     const query = db.getRepository(Stats).createQueryBuilder("stats");
     query.select("COUNT(*)", "TotalGames");
-    query.addSelect("SUM(stats.Duration)", "TotalDuration");
-    query.addSelect("SUM(stats.Kills)", "TotalKills");
-    query.addSelect("SUM(stats.KillsConceded)", "TotalKillsConceded");
-    query.addSelect("SUM(stats.TotalDmgDone)", "TotalDmgDone");
-    query.addSelect("SUM(stats.TotalDmgTaken)", "TotalDmgTaken");
-    query.addSelect("SUM(stats.Conversions)", "TotalConversions");
-    query.addSelect("SUM(stats.TotalOpenings)", "TotalOpenings");
-    query.addSelect("SUM(stats.NeutralWins)", "TotalNeutralWins");
-    query.addSelect("SUM(stats.NeutralLosses)", "TotalNeutralLosses");
-    query.addSelect("SUM(stats.CHWins)", "TotalCHWins");
-    query.addSelect("SUM(stats.CHLosses)", "TotalCHLosses");
-    query.addSelect("SUM(stats.GoodTrades)", "TotalGoodTrades");
-    query.addSelect("SUM(stats.BadTrades)", "TotalBadTrades");
-    query.addSelect("SUM(stats.IPM)", "TotalIPM");
+    query.addSelect("AVG(stats.Duration)", "AvgDuration");
+    query.addSelect("AVG(stats.Kills)", "AvgKills");
+    query.addSelect("AVG(stats.KillsConceded)", "AvgKillsConceded");
+    query.addSelect("AVG(stats.TotalDmgDone)", "AvgTotalDmgDone");
+    query.addSelect("AVG(stats.TotalDmgTaken)", "AvgTotalDmgTaken");
+    query.addSelect("AVG(stats.Conversions)", "AvgConversions");
+    query.addSelect("AVG(stats.TotalOpenings)", "AvgTotalOpenings");
+    query.addSelect("AVG(stats.NeutralWins)", "AvgNeutralWins");
+    query.addSelect("AVG(stats.NeutralLosses)", "AvgNeutralLosses");
+    query.addSelect("AVG(stats.CHWins)", "AvgCHWins");
+    query.addSelect("AVG(stats.CHLosses)", "AvgCHLosses");
+    query.addSelect("AVG(stats.GoodTrades)", "AvgGoodTrades");
+    query.addSelect("AVG(stats.BadTrades)", "AvgBadTrades");
+    query.addSelect("AVG(stats.LCancelSuccessRate)", "AvgLCancelSuccessRate");
+    query.addSelect("AVG(stats.IPM)", "AvgIPM");
     buildQueryFromParams(query, params);
 
     const sums = await query.getRawOne();

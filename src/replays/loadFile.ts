@@ -62,6 +62,8 @@ export async function loadFile(fullPath: string, playerCode: string): Promise<Ga
     return null;
   }
 
+  const playerActions = stats.actionCounts[playerId];
+
   const gameStats: GameStats = {
     StartTime: dateTime.toISOString(),
     Character: getCharNameByIndex(settings.players[playerId].characterId!),
@@ -82,9 +84,14 @@ export async function loadFile(fullPath: string, playerCode: string): Promise<Ga
     CHLosses: oppStats.counterHitRatio.count,
     GoodTrades: playerStats.beneficialTradeRatio.count,
     BadTrades: oppStats.beneficialTradeRatio.count,
+    LCancelSuccessRate: _.round(
+      playerActions.lCancelCount.success / (playerActions.lCancelCount.success + playerActions.lCancelCount.fail),
+      4,
+    ),
     IPM: _.round(playerStats.inputsPerMinute.ratio!, 1),
     FileName: filename,
   };
+  console.log(gameStats.LCancelSuccessRate);
   return gameStats;
 }
 

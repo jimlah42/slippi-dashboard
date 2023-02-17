@@ -43,6 +43,8 @@ export class Stats {
   @Column()
   BadTrades!: number;
   @Column()
+  LCancelSuccessRate!: number;
+  @Column()
   IPM!: number;
   @Column()
   FileName!: string;

@@ -4,12 +4,12 @@ import { useDashboard } from "../lib/hooks/useDashboard";
 import { round } from "../lib/round";
 
 export const OveriewDashboard = () => {
-  const getSums = useDashboard((store) => store.getSums);
+  const getAvgs = useDashboard((store) => store.getAvgs);
   const getCounts = useDashboard((store) => store.getCounts);
   const getWinLoss = useDashboard((store) => store.getWinLoss);
   const setParams = useDashboard((store) => store.setParams);
 
-  const Sums = useDashboard((store) => store.Sums);
+  const Avgs = useDashboard((store) => store.Avgs);
   const Counts = useDashboard((store) => store.Counts);
   const Wins = useDashboard((store) => store.Wins);
   const Losses = useDashboard((store) => store.Losses);
@@ -17,10 +17,10 @@ export const OveriewDashboard = () => {
 
   React.useEffect(() => {
     console.log(currParams);
-    getSums().catch(() => console.warn("getSums: err"));
+    getAvgs().catch(() => console.warn("getAvgs: err"));
     getCounts().catch(() => console.warn("getCounts: err"));
     getWinLoss().catch(() => console.warn("getWinLoss: err"));
-  }, [getSums, getCounts, getWinLoss, currParams]);
+  }, [getAvgs, getCounts, getWinLoss, currParams]);
 
   return (
     <div>
@@ -29,13 +29,16 @@ export const OveriewDashboard = () => {
       <div>
         Wins: {Wins}, Losses: {Losses}
       </div>
-      <div>Games Played: {Sums?.TotalGames}</div>
-      <div>Hours Played: {Sums?.TotalDuration != null ? round(Sums?.TotalDuration / 60 / 60, 2) : 0}</div>
-      <div>Openings: {Sums?.TotalOpenings}</div>
-      <div>Openings/Kill: {Sums != null ? round(Sums!.TotalOpenings / Sums!.TotalKills, 2) : 0}</div>
+      <div>Games Played: {Avgs?.TotalGames}</div>
+      <div>
+        Hours Played: {Avgs?.AvgDuration != null ? round((Avgs?.AvgDuration / 60 / 60) * Avgs?.TotalGames, 2) : 0}
+      </div>
+      <div>Openings/Kill: {Avgs != null ? round(Avgs!.AvgTotalOpenings / Avgs!.AvgKills, 2) : 0}</div>
+      <div>Inputs per Minute {Avgs != null ? round(Avgs!.AvgIPM, 2) : 0}</div>
+      <div>LCancel Success Rate: {Avgs != null ? round(Avgs!.AvgLCancelSuccessRate, 2) * 100 : 0}%</div>
       <div>
         Most Played Character:{" "}
-        {Counts != null ? Counts?.CharacterCount[0]?.Name + " Games:" + Counts?.CharacterCount[0]?.Count : "n/a"}
+        {Counts != null ? Counts?.CharacterCount[0]?.Name + " Games: " + Counts?.CharacterCount[0]?.Count : "n/a"}
       </div>
     </div>
   );
