@@ -4,7 +4,6 @@ import { MemoryRouter as Router, Navigate, Route, Routes } from "react-router-do
 
 import { useAppListeners } from "./lib/hooks/useAppListeners";
 import { DashView } from "./views/DashView";
-import { ReplayLoadingView } from "./views/ReplayLoadingView";
 import { SettingsView } from "./views/SettingsView";
 
 export default function App() {
@@ -12,7 +11,6 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/replayloading" element={<ReplayLoadingView />} />
         <Route path="/dashboard" element={<DashView />} />
         <Route path="/settings" element={<SettingsView />} />
         <Route path="/" element={<Navigate replace to="/dashboard" />} />

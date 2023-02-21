@@ -53,7 +53,21 @@ export async function loadFile(fullPath: string, playerCode: string): Promise<Ga
   const oppStats = stats.overall[oppId];
 
   const placements = gameEnd.placements!;
-  const didWin = placements[0].playerIndex == playerId ? 1 : 0;
+
+  let didWin = 0;
+  //Only files from Sept 2022 forward have placement data
+  if (placements[playerId].position != null && placements[oppId].position != null) {
+    didWin = placements[playerId].position == 0 ? 1 : 0;
+  } else {
+    //Wont handle timeouts properly on old files atm
+    const stocks = stats.stocks;
+    for (let i = 0; i < stocks.length; i++) {
+      if (stocks[i].endFrame == null) {
+        console.log(stocks[i].playerIndex + " " + playerId);
+        didWin = stocks[i].playerIndex === playerId ? 1 : 0;
+      }
+    }
+  }
 
   const dateTime = await fileToDateTime(metadata ? metadata.startAt : null, filename, fullPath);
 
@@ -91,7 +105,6 @@ export async function loadFile(fullPath: string, playerCode: string): Promise<Ga
     IPM: _.round(playerStats.inputsPerMinute.ratio!, 1),
     FileName: filename,
   };
-  console.log(gameStats.LCancelSuccessRate);
   return gameStats;
 }
 

@@ -1,8 +1,9 @@
 import { dbSource } from "data/datasouce";
+import type { Stats } from "data/entity/Stats";
 import { expose } from "threads";
 import type { ModuleMethods } from "threads/dist/types/master";
+import type { SelectQueryBuilder } from "typeorm";
 
-import { Stats } from "../data/entity/Stats";
 import type { DataAvgs, DataCounts, QueryParams } from "./types";
 import { buildQueryFromParams } from "./utils";
 
@@ -29,24 +30,29 @@ const methods: WorkerSpec = {
   },
   async getWinLoss(params: QueryParams): Promise<{ Wins: number; Losses: number }> {
     const db = await dbSource;
-    const winQuery = db.getRepository(Stats).createQueryBuilder("stats");
-    const lossQuery = db.getRepository(Stats).createQueryBuilder("stats");
-    buildQueryFromParams(winQuery, params);
-    buildQueryFromParams(lossQuery, params);
+    const winQuery: SelectQueryBuilder<Stats> = buildQueryFromParams(db, params);
+    const lossQuery: SelectQueryBuilder<Stats> = buildQueryFromParams(db, params);
 
-    const Wins = await winQuery.andWhere("stats.didWin = 1").getCount();
-    const Losses = await lossQuery.andWhere("stats.didWin = 0").getCount();
+    winQuery.addSelect("COUNT(*)", "Wins");
+    winQuery.andWhere("stats.didWin = 1");
+
+    const Wins = await winQuery.getRawOne();
+
+    lossQuery.addSelect("COUNT(*)", "Losses");
+    lossQuery.andWhere("stats.didWin = 0");
+
+    const Losses = await lossQuery.getRawOne();
 
     return {
-      Wins: Wins,
-      Losses: Losses,
+      Wins: Wins.Wins,
+      Losses: Losses.Losses,
     };
   },
 
   async getAvgs(params: QueryParams): Promise<DataAvgs> {
     const db = await dbSource;
-    const query = db.getRepository(Stats).createQueryBuilder("stats");
-    query.select("COUNT(*)", "TotalGames");
+    const query = buildQueryFromParams(db, params);
+    query.addSelect("COUNT(*)", "TotalGames");
     query.addSelect("AVG(stats.Duration)", "AvgDuration");
     query.addSelect("AVG(stats.Kills)", "AvgKills");
     query.addSelect("AVG(stats.KillsConceded)", "AvgKillsConceded");
@@ -62,7 +68,6 @@ const methods: WorkerSpec = {
     query.addSelect("AVG(stats.BadTrades)", "AvgBadTrades");
     query.addSelect("AVG(stats.LCancelSuccessRate)", "AvgLCancelSuccessRate");
     query.addSelect("AVG(stats.IPM)", "AvgIPM");
-    buildQueryFromParams(query, params);
 
     const sums = await query.getRawOne();
 
@@ -72,45 +77,73 @@ const methods: WorkerSpec = {
   },
   async getCounts(params: QueryParams): Promise<DataCounts> {
     const db = await dbSource;
-    const characterQuery = db.getRepository(Stats).createQueryBuilder("stats");
-    const oppCharacterQuery = db.getRepository(Stats).createQueryBuilder("stats");
-    const oppCodeQuery = db.getRepository(Stats).createQueryBuilder("stats");
-    const stageQuery = db.getRepository(Stats).createQueryBuilder("stats");
+    const characterQuery = buildQueryFromParams(db, params);
+    const oppCharacterQuery = buildQueryFromParams(db, params);
+    const oppCodeQuery = buildQueryFromParams(db, params);
+    const stageQuery = buildQueryFromParams(db, params);
 
     //Character counts
     characterQuery.select("stats.Character", "Name");
     characterQuery.addSelect("COUNT(*)", "Count");
+    characterQuery.addSelect("SUM(stats.DidWin)", "Wins");
     characterQuery.groupBy("stats.Character");
     characterQuery.orderBy("Count", "DESC");
-    buildQueryFromParams(characterQuery, params);
 
     //oppCharacter counts
     oppCharacterQuery.select("stats.oppCharacter", "Name");
     oppCharacterQuery.addSelect("COUNT(*)", "Count");
+    oppCharacterQuery.addSelect("SUM(stats.DidWin)", "Wins");
     oppCharacterQuery.groupBy("stats.oppCharacter");
     oppCharacterQuery.orderBy("Count", "DESC");
-    buildQueryFromParams(oppCharacterQuery, params);
 
     //oppCodeQuery counts
     oppCodeQuery.select("stats.OppCode", "Name");
     oppCodeQuery.addSelect("COUNT(*)", "Count");
+    oppCodeQuery.addSelect("SUM(stats.DidWin)", "Wins");
     oppCodeQuery.groupBy("stats.OppCode");
     oppCodeQuery.orderBy("Count", "DESC");
-    buildQueryFromParams(oppCodeQuery, params);
 
     //stageQuery counts
     stageQuery.select("stats.Stage", "Name");
     stageQuery.addSelect("COUNT(*)", "Count");
+    stageQuery.addSelect("SUM(stats.DidWin)", "Wins");
     stageQuery.groupBy("stats.Stage");
     stageQuery.orderBy("Count", "DESC");
-    buildQueryFromParams(stageQuery, params);
 
-    const CharacterCount = await characterQuery.getRawMany();
-    const OppCharacterCount = await oppCharacterQuery.getRawMany();
-    const OppCodeCount = await oppCodeQuery.getRawMany();
-    const StageCount = await stageQuery.getRawMany();
+    const CharacterCount = await db
+      .createQueryBuilder()
+      .select("*")
+      .addSelect("stats.Count - stats.Wins", "Losses")
+      .from("(" + characterQuery.getQuery() + ")", "stats")
+      .getRawMany();
 
-    const Count = {
+    const OppCharacterCount = await db
+      .createQueryBuilder()
+      .select("*")
+      .addSelect("result.Count - result.Wins", "Losses")
+      .from("(" + oppCharacterQuery.getQuery() + ")", "result")
+      .getRawMany();
+
+    const OppCodeCount = await db
+      .createQueryBuilder()
+      .select("*")
+      .addSelect("result.Count - result.Wins", "Losses")
+      .from("(" + oppCodeQuery.getQuery() + ")", "result")
+      .getRawMany();
+
+    const StageCount = await db
+      .createQueryBuilder()
+      .select("*")
+      .addSelect("result.Count - result.Wins", "Losses")
+      .from("(" + stageQuery.getQuery() + ")", "result")
+      .getRawMany();
+
+    // const CharacterCount = await characterQuery.getRawMany();
+    // const OppCharacterCount = await oppCharacterQuery.getRawMany();
+    // const OppCodeCount = await oppCodeQuery.getRawMany();
+    // const StageCount = await stageQuery.getRawMany();
+
+    const Count: DataCounts = {
       CharacterCount: CharacterCount,
       OppCharacterCount: OppCharacterCount,
       OppCodeCount: OppCodeCount,

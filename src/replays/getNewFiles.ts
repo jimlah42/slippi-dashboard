@@ -25,7 +25,6 @@ export async function getNewFiles(folder: string): Promise<FileWithPath[]> {
     }
   }
 
-  console.log(newFiles);
   return newFiles;
 }
 

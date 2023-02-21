@@ -6,7 +6,6 @@ export const MainMenu = () => {
   return (
     <div>
       <button onClick={() => navigate("/dashboard")}>DashBoard</button>
-      <button onClick={() => navigate("/replayloading")}>Load Replays</button>
       <button onClick={() => navigate("/settings")}>Settings</button>
     </div>
   );

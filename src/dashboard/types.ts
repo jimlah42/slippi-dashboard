@@ -3,6 +3,7 @@ export interface QueryParams {
   endDate?: string;
   Character?: string;
   OppCharacter?: string;
+  NoOfGames?: number;
 }
 
 export interface DataAvgs {
@@ -27,6 +28,8 @@ export interface DataAvgs {
 export interface CountType {
   Name: string;
   Count: number;
+  Wins: number;
+  Losses: number;
 }
 
 export interface DataCounts {

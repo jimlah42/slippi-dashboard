@@ -32,6 +32,14 @@ export const Settings: React.FC = () => {
         <PlayerCodeChangeDialog open={openPlayerCodeChangePrompt} handleClose={handleClose} />
         <button onClick={() => setOpenPlayerCodeChangePrompt(true)}>Change Code</button>
       </SettingItem>
+      <button
+        onClick={async () => {
+          await window.electron.replays.clearData();
+          await window.electron.dashboard.refreshDB();
+        }}
+      >
+        Clear Data
+      </button>
     </div>
   );
 };

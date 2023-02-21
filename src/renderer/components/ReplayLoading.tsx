@@ -2,20 +2,30 @@ import React from "react";
 import { useReplays } from "renderer/lib/hooks/useReplays";
 import { useSettings } from "renderer/lib/hooks/useSettings";
 
-import type { FileWithPath } from "../../replays/types";
+// import type { FileWithPath } from "../../replays/types";
 
 export const ReplayLoading = () => {
+  // interface State {
+  //   newFiles: FileWithPath[];
+  //   filesLoaded: number;
+  //   filesOmitted: number;
+  // }
+
+  // const [state, setState] = React.useState<State>({ newFiles: [], filesLoaded: 0, filesOmitted: 0 });
+
+  const vaildFiles = useReplays((store) => store.vaildFiles);
+  const filteredFiles = useReplays((store) => store.filteredFiles);
   const replaysPath = useSettings((store) => store.ReplaysPath);
   const playerCode = useSettings((store) => store.PlayerCode);
+  const newFiles = useReplays((store) => store.newFiles);
+
+  const getNewFiles = useReplays((store) => store.checkNewFiles);
+  const loadFiles = useReplays((store) => store.loadFiles);
+
   React.useEffect(() => {
     console.log("rendered");
-    window.electron.replays
-      .getNewFiles(replaysPath)
-      .then((res) => {
-        setState({ ...state, newFiles: res });
-      })
-      .catch((err) => console.warn(err));
-  }, []);
+    getNewFiles(replaysPath).catch(() => console.warn("getNewFiles err"));
+  }, [getNewFiles, replaysPath]);
 
   const LoadingBox = React.memo(function LoadingBox() {
     const progress = useReplays((store) => store.progress);
@@ -26,33 +36,25 @@ export const ReplayLoading = () => {
     );
   });
 
-  interface State {
-    newFiles: FileWithPath[];
-    filesLoaded: number;
-    filesOmitted: number;
-  }
-
-  const [state, setState] = React.useState<State>({ newFiles: [], filesLoaded: 0, filesOmitted: 0 });
-
   const load = async () => {
-    setState({ ...state, newFiles: await window.electron.replays.getNewFiles(replaysPath) });
     console.log("Loading");
-    const loaded = await window.electron.replays.loadFiles(state.newFiles, playerCode);
+    loadFiles(newFiles, playerCode).catch(() => console.warn("loadFiles err"));
+    // const loaded = await window.electron.replays.loadFiles(newFiles, playerCode);
 
-    setState({ ...state, filesLoaded: loaded.filesLoaded, filesOmitted: loaded.filesOmmitted });
-    await window.electron.dashboard.refreshDB();
+    // setState({ ...state, filesLoaded: loaded.filesLoaded, filesOmitted: loaded.filesOmmitted });
+    // await window.electron.dashboard.refreshDB();
   };
   const check = async () => {
-    setState({ ...state, newFiles: await window.electron.replays.getNewFiles(replaysPath) });
+    getNewFiles(replaysPath).catch(() => console.warn("getNewFiles err"));
   };
 
   return (
     <div>
-      <div>New Files: {state.newFiles.length}</div>
+      <div>New Files: {newFiles.length}</div>
       <button onClick={check}>Check New Files</button>
       <button onClick={load}>Load</button>
       <div>
-        Vaild Files: {state.filesLoaded} Files Filtered: {state.filesOmitted}
+        Vaild Files: {vaildFiles} Files Filtered: {filteredFiles}
       </div>
       <button
         onClick={async () => {
