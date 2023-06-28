@@ -18,10 +18,11 @@ export function buildQueryFromParams(db: DataSource, params: QueryParams): Selec
   }
 
   if (params.startDate != null) {
-    query.where("stats.startTime < :StartDate", { StartDate: params.startDate });
+    console.log(params.startDate);
+    query.where("stats.startTime >= :StartDate", { StartDate: params.startDate });
   }
   if (params.endDate != null) {
-    query.andWhere("stats.startTime > :EndDate", { EndDate: params.endDate });
+    query.andWhere("stats.startTime <= :EndDate", { EndDate: params.endDate });
   }
   if (params.Character != null) {
     query.andWhere("stats.Character = :Character", { Character: params.Character });
@@ -29,6 +30,8 @@ export function buildQueryFromParams(db: DataSource, params: QueryParams): Selec
   if (params.OppCharacter != null) {
     query.andWhere("stats.OppCharacter = :OppCharacter", { OppCharacter: params.OppCharacter });
   }
+
+  // console.log(query.getSql());
 
   return query;
 }

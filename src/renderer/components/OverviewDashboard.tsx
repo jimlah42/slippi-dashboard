@@ -52,6 +52,9 @@ export const OveriewDashboard = () => {
       <button onClick={() => setParams({ ...currParams, NoOfGames: undefined, startDate: daysAgo(30) })}>
         Last 30 Days
       </button>
+      <button onClick={() => setParams({ ...currParams, NoOfGames: undefined, startDate: daysAgo(365) })}>
+        Last Year
+      </button>
       <button onClick={() => setParams({})}>All Time</button>
       <button onClick={() => setParams({ NoOfGames: 10 })}>Last 10 Games</button>
       <div>

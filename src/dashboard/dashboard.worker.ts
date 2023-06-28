@@ -33,8 +33,10 @@ const methods: WorkerSpec = {
     const winQuery: SelectQueryBuilder<Stats> = buildQueryFromParams(db, params);
     const lossQuery: SelectQueryBuilder<Stats> = buildQueryFromParams(db, params);
 
-    winQuery.addSelect("COUNT(*)", "Wins");
+    winQuery.select("COUNT(*)", "Wins");
     winQuery.andWhere("stats.didWin = 1");
+
+    // console.log(winQuery.getSql());
 
     const Wins = await winQuery.getRawOne();
 
@@ -52,7 +54,7 @@ const methods: WorkerSpec = {
   async getAvgs(params: QueryParams): Promise<DataAvgs> {
     const db = await dbSource;
     const query = buildQueryFromParams(db, params);
-    query.addSelect("COUNT(*)", "TotalGames");
+    query.select("COUNT(*)", "TotalGames");
     query.addSelect("AVG(stats.Duration)", "AvgDuration");
     query.addSelect("AVG(stats.Kills)", "AvgKills");
     query.addSelect("AVG(stats.KillsConceded)", "AvgKillsConceded");
@@ -82,6 +84,9 @@ const methods: WorkerSpec = {
     const oppCodeQuery = buildQueryFromParams(db, params);
     const stageQuery = buildQueryFromParams(db, params);
 
+    console.log("After");
+    console.log(stageQuery.getSql());
+
     //Character counts
     characterQuery.select("stats.Character", "Name");
     characterQuery.addSelect("COUNT(*)", "Count");
@@ -110,11 +115,15 @@ const methods: WorkerSpec = {
     stageQuery.groupBy("stats.Stage");
     stageQuery.orderBy("Count", "DESC");
 
+    console.log("After");
+    console.log(stageQuery.getSql());
+
     const CharacterCount = await db
       .createQueryBuilder()
       .select("*")
       .addSelect("stats.Count - stats.Wins", "Losses")
       .from("(" + characterQuery.getQuery() + ")", "stats")
+      .setParameters(characterQuery.getParameters())
       .getRawMany();
 
     const OppCharacterCount = await db
@@ -122,6 +131,7 @@ const methods: WorkerSpec = {
       .select("*")
       .addSelect("result.Count - result.Wins", "Losses")
       .from("(" + oppCharacterQuery.getQuery() + ")", "result")
+      .setParameters(oppCharacterQuery.getParameters())
       .getRawMany();
 
     const OppCodeCount = await db
@@ -129,6 +139,7 @@ const methods: WorkerSpec = {
       .select("*")
       .addSelect("result.Count - result.Wins", "Losses")
       .from("(" + oppCodeQuery.getQuery() + ")", "result")
+      .setParameters(oppCodeQuery.getParameters())
       .getRawMany();
 
     const StageCount = await db
@@ -136,6 +147,7 @@ const methods: WorkerSpec = {
       .select("*")
       .addSelect("result.Count - result.Wins", "Losses")
       .from("(" + stageQuery.getQuery() + ")", "result")
+      .setParameters(stageQuery.getParameters())
       .getRawMany();
 
     // const CharacterCount = await characterQuery.getRawMany();
