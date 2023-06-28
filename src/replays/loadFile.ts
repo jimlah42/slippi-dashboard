@@ -14,21 +14,21 @@ import { getCharNameByIndex, getStageNameByIndex } from "./utils";
 
 const MIN_GAME_LENGTH_SECONDS = 30;
 
-export async function loadFile(fullPath: string, playerCode: string): Promise<GameStats | null> {
+export async function loadFile(fullPath: string, playerCodes: string[]): Promise<GameStats | null> {
   const filename = path.basename(fullPath);
   const game = new SlippiGame(fullPath);
 
   // const test = settingsManager.get().PlayerCode;
-  const PLAYER_CODE = playerCode;
+  const PLAYER_CODE = playerCodes;
   // console.log("Player Code: " + test);
   const metadata: MetadataType | null = game.getMetadata();
-
+  console.log(PLAYER_CODE);
   if (metadata === null) {
     console.warn("no metadata");
     return null;
   }
   const players = metadata.players;
-  if (PLAYER_CODE != players![0].names!.code && PLAYER_CODE != players![1].names!.code) {
+  if (!PLAYER_CODE.includes(players![0].names!.code!) && !PLAYER_CODE.includes(players![1].names!.code!)) {
     console.log("Not players game");
     return null;
   }
@@ -46,8 +46,8 @@ export async function loadFile(fullPath: string, playerCode: string): Promise<Ga
   }
   const stats = game.getStats()!;
   const gameEnd = game.getGameEnd()!;
-  const playerId = players![0].names!.code === PLAYER_CODE ? 0 : 1;
-  const oppId = players![0].names!.code === PLAYER_CODE ? 1 : 0;
+  const playerId = PLAYER_CODE.includes(players![0].names!.code!) ? 0 : 1;
+  const oppId = PLAYER_CODE.includes(players![1].names!.code!) ? 0 : 1;
 
   const playerStats = stats.overall[playerId];
   const oppStats = stats.overall[oppId];
@@ -63,7 +63,6 @@ export async function loadFile(fullPath: string, playerCode: string): Promise<Ga
     const stocks = stats.stocks;
     for (let i = 0; i < stocks.length; i++) {
       if (stocks[i].endFrame == null) {
-        console.log(stocks[i].playerIndex + " " + playerId);
         didWin = stocks[i].playerIndex === playerId ? 1 : 0;
       }
     }
@@ -82,6 +81,7 @@ export async function loadFile(fullPath: string, playerCode: string): Promise<Ga
     StartTime: dateTime.toISOString(),
     Character: getCharNameByIndex(settings.players[playerId].characterId!),
     OppCharacter: getCharNameByIndex(settings.players[oppId].characterId!),
+    Code: settings.players[playerId].connectCode,
     OppCode: settings.players[oppId].connectCode,
     Stage: getStageNameByIndex(settings.stageId!),
     Duration: duration,

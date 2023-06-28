@@ -1,6 +1,6 @@
 import { ipcRenderer } from "electron";
 
-import { ipc_setPlayerCode, ipc_setReplaysPath, ipc_settingsUpdatedEvent } from "./ipc";
+import { ipc_setPlayerCodes, ipc_setReplaysPath, ipc_settingsUpdatedEvent } from "./ipc";
 import type { AppSettings } from "./types";
 
 export default {
@@ -13,8 +13,8 @@ export default {
     });
     return destroy;
   },
-  async setPlayerCode(playerCode: string): Promise<void> {
-    await ipc_setPlayerCode.renderer!.trigger({ playerCode });
+  async setPlayerCodes(playerCodes: string[]): Promise<void> {
+    await ipc_setPlayerCodes.renderer!.trigger({ playerCodes });
   },
   async setReplaysPath(replaysPath: string): Promise<void> {
     console.log("Triggering Set: " + replaysPath);

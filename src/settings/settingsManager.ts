@@ -23,16 +23,16 @@ export class SettingsManager {
     return merge({}, defaultAppSettings, this.appSettings);
   }
 
-  public getPlayerCode(): string {
-    return this.get().PlayerCode;
+  public getPlayerCode(): string[] {
+    return this.get().PlayerCodes;
   }
 
   public getReplaysPath(): string {
     return this.get().ReplaysPath;
   }
 
-  public async setPlayerCode(playerCode: string): Promise<void> {
-    await this._set("PlayerCode", playerCode);
+  public async setPlayerCodes(playerCodes: string[]): Promise<void> {
+    await this._set("PlayerCodes", playerCodes);
   }
 
   public async setReplaysPath(replaysPath: string): Promise<void> {

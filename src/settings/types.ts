@@ -1,4 +1,4 @@
 export interface AppSettings {
-  PlayerCode: string;
+  PlayerCodes: string[];
   ReplaysPath: string;
 }

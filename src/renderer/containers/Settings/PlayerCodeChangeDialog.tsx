@@ -9,14 +9,19 @@ export const PlayerCodeChangeDialog: React.FC<{
   open: boolean;
   handleClose: () => void;
 }> = ({ open, handleClose }) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [playerCode, setPlayerCode] = usePlayerCode();
-  const { handleSubmit, watch, control } = useForm<{ playerCode: string }>({ defaultValues: { playerCode } });
+  const { handleSubmit, watch, control } = useForm<{ playerCode: string }>({ defaultValues: {} });
 
   const name = watch("playerCode");
 
   const onFormSubmit = handleSubmit(async () => {
     console.log("Settings code: " + name);
-    await setPlayerCode(name);
+    if (!playerCode) {
+      await setPlayerCode([name]);
+    } else {
+      await setPlayerCode([...playerCode, name]);
+    }
     handleClose();
   });
 

@@ -13,7 +13,7 @@ type StoreState = {
 
 type StoreReducers = {
   checkNewFiles: (replaysPath: string) => Promise<void>;
-  loadFiles: (files: FileWithPath[], playerCode: string) => Promise<void>;
+  loadFiles: (files: FileWithPath[], playerCodes: string[]) => Promise<void>;
   updateProgress: (progress: Progress | null) => void;
   setClose: (close: boolean) => void;
 };
@@ -35,7 +35,7 @@ export const useReplays = create<StoreState & StoreReducers>((set, get) => ({
     set({ newFiles: result });
   },
 
-  loadFiles: async (files: FileWithPath[], playerCode: string) => {
+  loadFiles: async (files: FileWithPath[], playerCodes: string[]) => {
     const { loading } = get();
     if (loading) {
       console.log("Already loading");
@@ -44,7 +44,7 @@ export const useReplays = create<StoreState & StoreReducers>((set, get) => ({
 
     set({ loading: true });
 
-    const result = await window.electron.replays.loadFiles(files, playerCode);
+    const result = await window.electron.replays.loadFiles(files, playerCodes);
     set({ vaildFiles: result.filesLoaded, filteredFiles: result.filesOmmitted });
     await window.electron.dashboard.refreshDB();
     set({ loading: false });

@@ -18,6 +18,6 @@ function getDefaultRootSlpPath(): string {
 }
 
 export const defaultAppSettings: AppSettings = {
-  PlayerCode: "",
+  PlayerCodes: [],
   ReplaysPath: getDefaultRootSlpPath(),
 };

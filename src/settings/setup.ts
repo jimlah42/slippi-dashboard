@@ -1,6 +1,6 @@
 import { ipcMain } from "electron";
 
-import { ipc_setPlayerCode, ipc_setReplaysPath } from "./ipc";
+import { ipc_setPlayerCodes, ipc_setReplaysPath } from "./ipc";
 import type { SettingsManager } from "./settingsManager";
 
 export default function setupSettingsIpc(settingsManager: SettingsManager) {
@@ -9,8 +9,8 @@ export default function setupSettingsIpc(settingsManager: SettingsManager) {
     event.returnValue = settings;
   });
 
-  ipc_setPlayerCode.main!.handle(async ({ playerCode }) => {
-    await settingsManager.setPlayerCode(playerCode);
+  ipc_setPlayerCodes.main!.handle(async ({ playerCodes }) => {
+    await settingsManager.setPlayerCodes(playerCodes);
     return { success: true };
   });
 

@@ -1,5 +1,7 @@
 import {
+  ipc_clearCode,
   ipc_clearData,
+  ipc_clearFiltered,
   ipc_getNewFiles,
   ipc_loadProgressUpdatedEvent,
   ipc_loadReplayFiles,
@@ -8,8 +10,8 @@ import {
 import type { FileWithPath, Progress } from "./types";
 
 export default {
-  async loadFiles(files: FileWithPath[], playerCode: string) {
-    const { result } = await ipc_loadReplayFiles.renderer!.trigger({ files, playerCode });
+  async loadFiles(files: FileWithPath[], playerCodes: string[]) {
+    const { result } = await ipc_loadReplayFiles.renderer!.trigger({ files, playerCodes });
     return result;
   },
   async getNewFiles(path: string) {
@@ -19,7 +21,13 @@ export default {
   async clearData() {
     await ipc_clearData.renderer!.trigger({});
   },
+  async clearFiltered() {
+    await ipc_clearFiltered.renderer!.trigger({});
+  },
 
+  async clearCode(playerCode: string) {
+    await ipc_clearCode.renderer!.trigger({ playerCode });
+  },
   async refreshDB(): Promise<void> {
     await ipc_refreshDB.renderer!.trigger({});
   },

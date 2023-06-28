@@ -36,7 +36,7 @@ export const OveriewDashboard = () => {
         <ol>
           {array.map((character) => (
             <li key={character.Name}>
-              {character.Name} {asPercentage(character.Wins, character.Losses)}% ({character.Count})
+              {character.Name} {asPercentage(character.Wins, character.Count)}% ({character.Count})
             </li>
           ))}
         </ol>
@@ -71,6 +71,8 @@ export const OveriewDashboard = () => {
       <ListCounts countArray={Counts?.CharacterCount} />
       <div>Most Played Against Characters:</div>
       <ListCounts countArray={Counts?.OppCharacterCount} />
+      <div>Most Played Opponents</div>
+      <ListCounts countArray={Counts?.OppCodeCount} />
       <div>Most Played Stages:</div>
       <ListCounts countArray={Counts?.StageCount} />
     </div>

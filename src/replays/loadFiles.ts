@@ -8,7 +8,7 @@ import type { FilesLoadResult, FileWithPath, GameStats } from "./types";
 
 export async function loadFiles(
   files: FileWithPath[],
-  playerCode: string,
+  playerCodes: string[],
   callback: (current: number, total: number) => void = () => null,
 ): Promise<FilesLoadResult> {
   if (files.length < 0) {
@@ -26,7 +26,6 @@ export async function loadFiles(
   const total = files.length;
 
   // const fullSlippiPaths = files.map((fileName) => folderPath.concat(fileName));
-  const fullSlippiPaths = files;
 
   callback(0, total);
 
@@ -43,18 +42,24 @@ export async function loadFiles(
       .catch(() => console.warn("Failed Load to filtered"));
   }
 
+  let totalLoads = 0;
+
   const process = async (file: FileWithPath) => {
     return new Promise<GameStats | null>((resolve) => {
       setImmediate(async () => {
-        const res = await loadFile(path.join(file.path, file.fileName), playerCode);
+        const res = await loadFile(path.join(file.path, file.fileName), playerCodes);
         if (res == null) {
           addToBlackList(file.fileName);
           console.log("failed load");
+          totalLoads += 1;
+          callback(totalLoads, total);
           resolve(null);
         } else {
           if (filesSeen.has(res.StartTime)) {
             addToBlackList(file.fileName);
             console.warn("Dupe File");
+            totalLoads += 1;
+            callback(totalLoads, total);
             resolve(null);
           } else {
             filesSeen.add(res.StartTime);
@@ -71,14 +76,15 @@ export async function loadFiles(
           gamesList.push(res!);
           console.log("Loaded file to db");
           vaildLoads += 1;
-          callback(vaildLoads, total);
+          totalLoads += 1;
+          callback(totalLoads, total);
           resolve(res);
         }
       });
     });
   };
 
-  console.log(fullSlippiPaths);
+  // console.log(fullSlippiPaths);
   const filePromise = Promise.all(
     files.map((file) => {
       return process(file);

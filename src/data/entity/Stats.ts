@@ -11,6 +11,8 @@ export class Stats {
   @Column()
   OppCharacter!: string;
   @Column()
+  Code!: string;
+  @Column()
   OppCode!: string;
   @Column()
   Stage!: string;

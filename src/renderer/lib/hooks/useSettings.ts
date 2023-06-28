@@ -20,13 +20,19 @@ export const useSettings = create(
 );
 
 export const usePlayerCode = () => {
-  const playerCode = useSettings((store) => store.PlayerCode);
-  const setPlayerCode = async (playerCode: string) => {
-    await window.electron.settings.setPlayerCode(playerCode);
-    await window.electron.replays.clearData();
+  const playerCode = useSettings((store) => store.PlayerCodes);
+  const setPlayerCode = async (playerCodes: string[]) => {
+    await window.electron.settings.setPlayerCodes(playerCodes);
+    await window.electron.replays.clearFiltered();
     await window.electron.dashboard.refreshDB();
   };
-  return [playerCode, setPlayerCode] as const;
+  const removePlayerCode = async (playerCodes: string[], playerCode: string) => {
+    console.log(playerCode);
+    await window.electron.settings.setPlayerCodes(playerCodes);
+    await window.electron.replays.clearCode(playerCode);
+    await window.electron.dashboard.refreshDB();
+  };
+  return [playerCode, setPlayerCode, removePlayerCode] as const;
 };
 
 export const useReplaysPath = () => {

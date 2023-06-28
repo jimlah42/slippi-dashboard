@@ -13,7 +13,7 @@ export const PersistentNotification: React.FC = () => {
   const vaildFiles = useReplays((store) => store.vaildFiles);
   const filteredFiles = useReplays((store) => store.filteredFiles);
   const replaysPath = useSettings((store) => store.ReplaysPath);
-  const playerCode = useSettings((store) => store.PlayerCode);
+  const playerCode = useSettings((store) => store.PlayerCodes);
   const newFiles = useReplays((store) => store.newFiles);
   const progress = useReplays((store) => store.progress);
   const setParams = useDashboard((store) => store.setParams);
@@ -27,6 +27,21 @@ export const PersistentNotification: React.FC = () => {
     console.log("rendered");
     getNewFiles(replaysPath).catch(() => console.warn("getNewFiles err"));
   }, [getNewFiles, replaysPath]);
+
+  if (playerCode.length == 0) {
+    return (
+      <Outer>
+        <div
+          css={css`
+            display: flex;
+            justify-content: center;
+          `}
+        >
+          Please go to the Settings page and set your Slippi Connect Code
+        </div>
+      </Outer>
+    );
+  }
 
   if (loading) {
     if (Done) {
