@@ -1,4 +1,4 @@
-const CHARACTER_NAMES = [
+export const CHARACTER_NAMES = [
   "Falcon",
   "Donkey Kong",
   "Fox",

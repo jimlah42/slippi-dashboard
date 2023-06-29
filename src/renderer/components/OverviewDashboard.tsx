@@ -5,6 +5,7 @@ import { asPercentage } from "../lib/asPercentage";
 import { useDashboard } from "../lib/hooks/useDashboard";
 import { round } from "../lib/round";
 import { daysAgo } from "../lib/time";
+import { CharacterSelect } from "./CharacterSelect";
 
 export const OveriewDashboard = () => {
   const getAvgs = useDashboard((store) => store.getAvgs);
@@ -36,12 +37,28 @@ export const OveriewDashboard = () => {
         <ol>
           {array.map((character) => (
             <li key={character.Name}>
-              {character.Name} {asPercentage(character.Wins, character.Count)}% ({character.Count})
+              {character.Name} Win Rate: {asPercentage(character.Wins, character.Count)}% Total Games: {character.Count}
             </li>
           ))}
         </ol>
       </div>
     );
+  };
+
+  const handleCharChange = (value: string) => {
+    if (value != "Any") {
+      setParams({ ...currParams, Character: value });
+    } else {
+      setParams({ ...currParams, Character: undefined });
+    }
+  };
+
+  const handleOppCharChange = (value: string) => {
+    if (value != "Any") {
+      setParams({ ...currParams, OppCharacter: value });
+    } else {
+      setParams({ ...currParams, OppCharacter: undefined });
+    }
   };
 
   return (
@@ -57,6 +74,8 @@ export const OveriewDashboard = () => {
       </button>
       <button onClick={() => setParams({})}>All Time</button>
       <button onClick={() => setParams({ NoOfGames: 10 })}>Last 10 Games</button>
+      <CharacterSelect onChange={handleCharChange}></CharacterSelect>
+      <CharacterSelect onChange={handleOppCharChange}></CharacterSelect>
       <div>
         Wins: {Wins}, Losses: {Losses}
       </div>
