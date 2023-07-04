@@ -76,8 +76,8 @@
   },
   "dependencies": {
     "@babel/core": "^7.20.12",
-    "@mui/icons-material": "^5.11.0",
-    "@mui/material": "^5.11.8",
+    "@mui/icons-material": "^5.11.16",
+    "@mui/material": "^5.13.6",
     "@slippi/slippi-js": "^6.6.0",
     "crypto-js": "^4.1.1",
     "electron-debug": "^3.2.0",
@@ -92,6 +92,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.43.1",
     "react-router-dom": "^6.3.0",
+    "recharts": "^2.7.2",
     "reflect-metadata": "^0.1.13",
     "sql.js": "^1.8.0",
     "threads": "^1.7.0",

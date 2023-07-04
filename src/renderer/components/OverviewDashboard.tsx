@@ -1,11 +1,16 @@
-import type { CountType } from "dashboard/types";
+import styled from "@emotion/styled";
+import { Card, Paper, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import React from "react";
 
-import { asPercentage } from "../lib/asPercentage";
 import { useDashboard } from "../lib/hooks/useDashboard";
-import { round } from "../lib/round";
 import { daysAgo } from "../lib/time";
 import { CharacterSelect } from "./CharacterSelect";
+import { WinLoss } from "./charts/WinLoss";
+import { CountDataTable } from "./CountDataTable";
+import { GeneralStatsTable } from "./GeneralStatsTable";
+import { PlayTimeTable } from "./PlayTimeTable";
+import { StageWinLoss } from "./StageWinLoss";
 
 export const OveriewDashboard = () => {
   const getAvgs = useDashboard((store) => store.getAvgs);
@@ -26,25 +31,6 @@ export const OveriewDashboard = () => {
     getWinLoss().catch(() => console.warn("getWinLoss: err"));
   }, [getAvgs, getCounts, getWinLoss, currParams]);
 
-  const ListCounts = ({ countArray }: { countArray: CountType[] | undefined }) => {
-    if (!countArray) {
-      return null;
-    }
-
-    const array = countArray;
-    return (
-      <div>
-        <ol>
-          {array.map((character) => (
-            <li key={character.Name}>
-              {character.Name} Win Rate: {asPercentage(character.Wins, character.Count)}% Total Games: {character.Count}
-            </li>
-          ))}
-        </ol>
-      </div>
-    );
-  };
-
   const handleCharChange = (value: string) => {
     if (value != "Any") {
       setParams({ ...currParams, Character: value });
@@ -61,42 +47,95 @@ export const OveriewDashboard = () => {
     }
   };
 
+  const [date, setDate] = React.useState<string | null>("all");
+  const handleDate = (event: React.MouseEvent<HTMLElement>, newDate: string | null) => {
+    setDate(newDate);
+    switch (newDate) {
+      case "all":
+        setParams({ ...currParams, NoOfGames: undefined, startDate: undefined });
+        break;
+      case "week":
+        setParams({ ...currParams, NoOfGames: undefined, startDate: daysAgo(7) });
+        break;
+      case "month":
+        setParams({ ...currParams, NoOfGames: undefined, startDate: daysAgo(30) });
+        break;
+      case "year":
+        setParams({ ...currParams, NoOfGames: undefined, startDate: daysAgo(365) });
+        break;
+      case "ten":
+        setParams({ ...currParams, NoOfGames: 10, startDate: undefined });
+        break;
+      default:
+        setParams({ ...currParams, NoOfGames: undefined, startDate: undefined });
+        break;
+    }
+  };
+
   return (
     <div>
-      <button onClick={() => setParams({ ...currParams, NoOfGames: undefined, startDate: daysAgo(7) })}>
-        Last 7 Days
-      </button>
-      <button onClick={() => setParams({ ...currParams, NoOfGames: undefined, startDate: daysAgo(30) })}>
-        Last 30 Days
-      </button>
-      <button onClick={() => setParams({ ...currParams, NoOfGames: undefined, startDate: daysAgo(365) })}>
-        Last Year
-      </button>
-      <button onClick={() => setParams({})}>All Time</button>
-      <button onClick={() => setParams({ NoOfGames: 10 })}>Last 10 Games</button>
-      <CharacterSelect onChange={handleCharChange}></CharacterSelect>
-      <CharacterSelect onChange={handleOppCharChange}></CharacterSelect>
       <div>
-        Wins: {Wins}, Losses: {Losses}
+        <Paper elevation={0} sx={{ display: "flex", flexWrap: "wrap" }}>
+          <ToggleButtonGroup value={date} exclusive onChange={handleDate} color="primary">
+            <ToggleButton value="all">All</ToggleButton>
+            <ToggleButton value="week">Week</ToggleButton>
+            <ToggleButton value="month">Month</ToggleButton>
+            <ToggleButton value="year">Year</ToggleButton>
+            <ToggleButton value="ten">Last 10 games</ToggleButton>
+          </ToggleButtonGroup>
+          <CharacterSelect onChange={handleCharChange}></CharacterSelect>
+          <Typography>&nbsp;vs&nbsp;</Typography>
+          <CharacterSelect onChange={handleOppCharChange}></CharacterSelect>
+        </Paper>
       </div>
-      <div>Games Played: {Avgs?.TotalGames}</div>
-      <div>
-        Hours Played: {Avgs?.AvgDuration != null ? round((Avgs?.AvgDuration / 60 / 60) * Avgs?.TotalGames, 2) : 0}
-      </div>
-      <div>
-        Opening Convertion Rate: {Avgs != null ? round(Avgs!.AvgConversions / Avgs!.AvgTotalOpenings, 2) * 100 : 0}%
-      </div>
-      <div>Openings/Kill: {Avgs != null ? round(Avgs!.AvgTotalOpenings / Avgs!.AvgKills, 2) : 0}</div>
-      <div>Inputs per Minute {Avgs != null ? round(Avgs!.AvgIPM, 2) : 0}</div>
-      <div>LCancel Success Rate: {Avgs != null ? round(Avgs!.AvgLCancelSuccessRate, 2) * 100 : 0}%</div>
-      <div>Most Played Characters:</div>
-      <ListCounts countArray={Counts?.CharacterCount} />
-      <div>Most Played Against Characters:</div>
-      <ListCounts countArray={Counts?.OppCharacterCount} />
-      <div>Most Played Opponents</div>
-      <ListCounts countArray={Counts?.OppCodeCount} />
-      <div>Most Played Stages:</div>
-      <ListCounts countArray={Counts?.StageCount} />
+
+      <Grid container spacing={1}>
+        <Grid item xs={3}>
+          <StyledCard>
+            <PlayTimeTable Avgs={Avgs} Counts={Counts}></PlayTimeTable>
+          </StyledCard>
+        </Grid>
+        <Grid item xs={3}>
+          <StyledCard>
+            <Typography variant="h6">Win Rate</Typography>
+            <WinLoss Wins={Wins} Losses={Losses}></WinLoss>
+          </StyledCard>
+        </Grid>
+        <Grid item xs={6}>
+          <StyledCard>
+            <GeneralStatsTable Avgs={Avgs}></GeneralStatsTable>
+          </StyledCard>
+        </Grid>
+        <Grid item xs={4}>
+          <StyledCard>
+            <Typography variant="h6">Most Played Characters:</Typography>
+            <CountDataTable type="Character" values={Counts?.CharacterCount}></CountDataTable>
+          </StyledCard>
+        </Grid>
+        <Grid item xs={4}>
+          <StyledCard>
+            <Typography variant="h6">Most Played Against Characters:</Typography>
+            <CountDataTable type="Character" values={Counts?.OppCharacterCount}></CountDataTable>
+          </StyledCard>
+        </Grid>
+        <Grid item xs={4}>
+          <StyledCard>
+            <Typography variant="h6">Most Played Opponents</Typography>
+            <CountDataTable type="Name" values={Counts?.OppCodeCount}></CountDataTable>
+          </StyledCard>
+        </Grid>
+        <Grid item xs={12}>
+          <StyledCard>
+            <Typography variant="h6">Most Played Stages:</Typography>
+            <StageWinLoss StageCounts={Counts?.StageCount}></StageWinLoss>
+          </StyledCard>
+        </Grid>
+      </Grid>
     </div>
   );
 };
+
+const StyledCard = styled(Card)`
+  width: 100%;
+  height: 100%;
+`;
