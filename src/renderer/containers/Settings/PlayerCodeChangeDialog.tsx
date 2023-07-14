@@ -10,7 +10,7 @@ export const PlayerCodeChangeDialog: React.FC<{
   handleClose: () => void;
 }> = ({ open, handleClose }) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [playerCode, setPlayerCode] = usePlayerCode();
+  const { playerCode, setPlayerCode } = usePlayerCode();
   const { handleSubmit, watch, control } = useForm<{ playerCode: string }>({ defaultValues: {} });
 
   const name = watch("playerCode");

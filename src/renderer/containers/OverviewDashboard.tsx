@@ -54,7 +54,7 @@ export const OveriewDashboard = () => {
   };
 
   const [date, setDate] = React.useState<string | null>("all");
-  const handleDate = (event: React.MouseEvent<HTMLElement>, newDate: string | null) => {
+  const handleDate = (_event: React.MouseEvent<HTMLElement>, newDate: string | null) => {
     setDate(newDate);
     switch (newDate) {
       case "all":

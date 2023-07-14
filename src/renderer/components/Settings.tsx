@@ -8,7 +8,7 @@ import { PathInput } from "./PathInput";
 export const Settings: React.FC = () => {
   const [replaysPath, setReplaysPath] = useReplaysPath();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [playerCode, setPlayerCode, removePlayerCode] = usePlayerCode();
+  const { playerCode, removePlayerCode } = usePlayerCode();
   const [openPlayerCodeChangePrompt, setOpenPlayerCodeChangePrompt] = React.useState(false);
 
   const handleClose = () => {

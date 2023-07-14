@@ -32,7 +32,7 @@ export const usePlayerCode = () => {
     await window.electron.replays.clearCode(playerCode);
     await window.electron.dashboard.refreshDB();
   };
-  return [playerCode, setPlayerCode, removePlayerCode] as const;
+  return { playerCode, setPlayerCode, removePlayerCode } as const;
 };
 
 export const useReplaysPath = () => {

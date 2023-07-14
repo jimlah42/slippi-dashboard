@@ -2,6 +2,11 @@
 logs
 *.log
 
+# Database
+*.sqlite3
+.sqlite3
+/src/data/test.sqlite3
+
 # Runtime data
 pids
 *.pid
@@ -29,3 +34,4 @@ npm-debug.log.*
 *.scss.d.ts
 src/tests/*.spec.ts
 *.slp
+src/data/test.sqlite3
