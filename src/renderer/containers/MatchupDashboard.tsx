@@ -3,22 +3,26 @@ import { Card, Paper, ToggleButton, ToggleButtonGroup, Typography } from "@mui/m
 import Grid from "@mui/material/Grid";
 import React from "react";
 
+import { CharacterSelect } from "../components/CharacterSelect";
+import { WinLoss } from "../components/charts/WinLoss";
+import { CountDataTable } from "../components/CountDataTable";
+import { GeneralStatsTable } from "../components/GeneralStatsTable";
+import { PlayTimeTable } from "../components/PlayTimeTable";
+import { StageWinLoss } from "../components/StageWinLoss";
 import { useDashboard } from "../lib/hooks/useDashboard";
-import { daysAgo } from "../lib/time";
-import { CharacterSelect } from "./CharacterSelect";
-import { WinLoss } from "./charts/WinLoss";
-import { CountDataTable } from "./CountDataTable";
-import { GeneralStatsTable } from "./GeneralStatsTable";
-import { PlayTimeTable } from "./PlayTimeTable";
-import { StageWinLoss } from "./StageWinLoss";
+import { daysAgo, startOfCurrent } from "../lib/time";
 
-export const OveriewDashboard = () => {
+export const MatchupDashboard = () => {
+  const getPrevAvgs = useDashboard((store) => store.getPrevAvgs);
   const getAvgs = useDashboard((store) => store.getAvgs);
+  const getPrevCounts = useDashboard((store) => store.getPrevCounts);
   const getCounts = useDashboard((store) => store.getCounts);
   const getWinLoss = useDashboard((store) => store.getWinLoss);
   const setParams = useDashboard((store) => store.setParams);
 
+  const PrevAvgs = useDashboard((store) => store.PrevAvgs);
   const Avgs = useDashboard((store) => store.Avgs);
+  const PrevCounts = useDashboard((store) => store.PrevCounts);
   const Counts = useDashboard((store) => store.Counts);
   const Wins = useDashboard((store) => store.Wins);
   const Losses = useDashboard((store) => store.Losses);
@@ -26,10 +30,12 @@ export const OveriewDashboard = () => {
 
   React.useEffect(() => {
     console.log(currParams);
+    getPrevAvgs().catch(() => console.warn("getPrevAvgs: err"));
     getAvgs().catch(() => console.warn("getAvgs: err"));
+    getPrevCounts().catch(() => console.warn("getPrevCounts: err"));
     getCounts().catch(() => console.warn("getCounts: err"));
     getWinLoss().catch(() => console.warn("getWinLoss: err"));
-  }, [getAvgs, getCounts, getWinLoss, currParams]);
+  }, [getAvgs, getCounts, getWinLoss, currParams, getPrevAvgs, getPrevCounts]);
 
   const handleCharChange = (value: string) => {
     if (value != "Any") {
@@ -48,26 +54,26 @@ export const OveriewDashboard = () => {
   };
 
   const [date, setDate] = React.useState<string | null>("all");
-  const handleDate = (event: React.MouseEvent<HTMLElement>, newDate: string | null) => {
+  const handleDate = (_event: React.MouseEvent<HTMLElement>, newDate: string | null) => {
     setDate(newDate);
     switch (newDate) {
       case "all":
-        setParams({ ...currParams, NoOfGames: undefined, startDate: undefined });
+        setParams({ ...currParams, NoOfGames: undefined, startDate: undefined, period: undefined });
         break;
       case "week":
-        setParams({ ...currParams, NoOfGames: undefined, startDate: daysAgo(7) });
+        setParams({ ...currParams, NoOfGames: undefined, startDate: daysAgo(7), period: "week" });
         break;
       case "month":
-        setParams({ ...currParams, NoOfGames: undefined, startDate: daysAgo(30) });
+        setParams({ ...currParams, NoOfGames: undefined, startDate: startOfCurrent("month"), period: "month" });
         break;
       case "year":
-        setParams({ ...currParams, NoOfGames: undefined, startDate: daysAgo(365) });
+        setParams({ ...currParams, NoOfGames: undefined, startDate: startOfCurrent("year"), period: "year" });
         break;
       case "ten":
-        setParams({ ...currParams, NoOfGames: 10, startDate: undefined });
+        setParams({ ...currParams, NoOfGames: 10, startDate: undefined, period: undefined });
         break;
       default:
-        setParams({ ...currParams, NoOfGames: undefined, startDate: undefined });
+        setParams({ ...currParams, NoOfGames: undefined, startDate: undefined, period: undefined });
         break;
     }
   };
@@ -92,7 +98,7 @@ export const OveriewDashboard = () => {
       <Grid container spacing={1}>
         <Grid item xs={3}>
           <StyledCard>
-            <PlayTimeTable Avgs={Avgs} Counts={Counts}></PlayTimeTable>
+            <PlayTimeTable Avgs={Avgs} PrevAvgs={PrevAvgs} Counts={Counts} PrevCounts={PrevCounts}></PlayTimeTable>
           </StyledCard>
         </Grid>
         <Grid item xs={3}>
@@ -103,19 +109,7 @@ export const OveriewDashboard = () => {
         </Grid>
         <Grid item xs={6}>
           <StyledCard>
-            <GeneralStatsTable Avgs={Avgs}></GeneralStatsTable>
-          </StyledCard>
-        </Grid>
-        <Grid item xs={4}>
-          <StyledCard>
-            <Typography variant="h6">Most Played Characters:</Typography>
-            <CountDataTable type="Character" values={Counts?.CharacterCount}></CountDataTable>
-          </StyledCard>
-        </Grid>
-        <Grid item xs={4}>
-          <StyledCard>
-            <Typography variant="h6">Most Played Against Characters:</Typography>
-            <CountDataTable type="Character" values={Counts?.OppCharacterCount}></CountDataTable>
+            <GeneralStatsTable Avgs={Avgs} PrevAvgs={PrevAvgs}></GeneralStatsTable>
           </StyledCard>
         </Grid>
         <Grid item xs={4}>

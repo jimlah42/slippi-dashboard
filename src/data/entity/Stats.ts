@@ -50,4 +50,28 @@ export class Stats {
   IPM!: number;
   @Column()
   FileName!: string;
+  @Column()
+  WavedashCount!: number;
+  @Column()
+  WavelandCount!: number;
+  @Column()
+  AirDodgeCount!: number;
+  @Column()
+  DashDanceCount!: number;
+  @Column()
+  SpotDodgeCount!: number;
+  @Column()
+  LedgegrabCount!: number;
+  @Column()
+  RollCount!: number;
+  @Column()
+  AvgDeathPercent!: number;
+  @Column()
+  AvgKillPercent!: number;
+  @Column()
+  MostCommonKillMove!: string;
+  @Column()
+  MostCommonMoveKillby!: string;
+  @Column()
+  SDs!: number;
 }

@@ -1,13 +1,13 @@
 import React from "react";
 
 import { MainMenu } from "../containers/MainMenu";
-import { OveriewDashboard } from "../containers/OverviewDashboard";
+import { MatchupDashboard } from "../containers/MatchupDashboard";
 
-export const DashView: React.FC = () => {
+export const MatchupView: React.FC = () => {
   return (
     <div>
       <MainMenu />
-      <OveriewDashboard />
+      <MatchupDashboard />
     </div>
   );
 };

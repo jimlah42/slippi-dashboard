@@ -1,9 +1,13 @@
-import { ipc_getAvgs, ipc_getCounts, ipc_getWinLoss, ipc_refreshDB } from "./ipc";
+import { ipc_getAvgs, ipc_getCounts, ipc_getPeriodAvgs, ipc_getWinLoss, ipc_refreshDB } from "./ipc";
 import type { QueryParams } from "./types";
 
 export default {
   async getWinLoss(params: QueryParams) {
     const { result } = await ipc_getWinLoss.renderer!.trigger(params);
+    return result;
+  },
+  async getPeriodAvgs(params: QueryParams) {
+    const { result } = await ipc_getPeriodAvgs.renderer!.trigger(params);
     return result;
   },
   async getAvgs(params: QueryParams) {

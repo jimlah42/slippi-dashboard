@@ -4,9 +4,11 @@ export interface QueryParams {
   Character?: string;
   OppCharacter?: string;
   NoOfGames?: number;
+  period?: string;
 }
 
-export interface DataAvgs {
+export interface MonthlyDataAvgs {
+  Month: string;
   TotalGames: number;
   AvgDuration: number;
   AvgKills: number;
@@ -15,6 +17,27 @@ export interface DataAvgs {
   AvgTotalDmgTaken: number;
   AvgConversions: number;
   AvgTotalOpenings: number;
+  AvgNeutralWins: number;
+  AvgNeutralLosses: number;
+  AvgCHWins: number;
+  AvgCHLosses: number;
+  AvgGoodTrades: number;
+  AvgBadTrades: number;
+  AvgLCancelSuccessRate: number;
+  AvgIPM: number;
+}
+
+export interface DataAvgs {
+  Period?: string;
+  TotalGames: number;
+  AvgDuration: number;
+  AvgKills: number;
+  AvgKillsConceded: number;
+  AvgTotalDmgDone: number;
+  AvgTotalDmgTaken: number;
+  AvgConversions: number;
+  AvgTotalOpenings: number;
+  AvgOpeningsPerKill: number;
   AvgNeutralWins: number;
   AvgNeutralLosses: number;
   AvgCHWins: number;

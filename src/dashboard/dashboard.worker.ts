@@ -11,6 +11,7 @@ interface Methods {
   dispose: () => Promise<void>;
   refreshDB: () => Promise<void>;
   getWinLoss(params: QueryParams): Promise<{ Wins: number; Losses: number }>;
+  getPeriodAvgs(params: QueryParams): Promise<DataAvgs[]>;
   getAvgs(params: QueryParams): Promise<DataAvgs>;
   getCounts(params: QueryParams): Promise<DataCounts>;
 }
@@ -51,6 +52,65 @@ const methods: WorkerSpec = {
     };
   },
 
+  async getPeriodAvgs(params: QueryParams): Promise<DataAvgs[]> {
+    let period;
+    if (!params.period) {
+      period = "none";
+    } else {
+      period = params.period;
+    }
+    const db = await dbSource;
+    const query = buildQueryFromParams(db, params);
+
+    const periodRegex = {
+      year: "'%Y'",
+      month: "'%Y-%m'",
+      week: "'%Y-%m'",
+      none: "'%Y-%m'",
+    };
+    // switch (period) {
+    //   case "year":
+    //     query.select("STRFTIME('%Y', stats.StartTime)", "Period");
+    //     break;
+    //   case "month":
+    //     query.select("STRFTIME('%Y-%m', stats.StartTime)", "Period");
+    //     break;
+    //   case "week":
+    //     query.select("STRFTIME('%Y-%m', stats.StartTime)", "Period");
+    //     break;
+    //   default:
+    //     query.select("STRFTIME('%', stats.StartTime)", "Period");
+    //     break;
+    // }
+
+    query.select("STRFTIME(" + periodRegex[period] + ", stats.StartTime)", "Period");
+
+    query.addSelect("COUNT(*)", "TotalGames");
+    query.addSelect("AVG(stats.Duration)", "AvgDuration");
+    query.addSelect("AVG(stats.Kills)", "AvgKills");
+    query.addSelect("AVG(stats.KillsConceded)", "AvgKillsConceded");
+    query.addSelect("AVG(stats.TotalDmgDone)", "AvgTotalDmgDone");
+    query.addSelect("AVG(stats.TotalDmgTaken)", "AvgTotalDmgTaken");
+    query.addSelect("AVG(stats.Conversions)", "AvgConversions");
+    query.addSelect("AVG(stats.TotalOpenings)", "AvgTotalOpenings");
+    query.addSelect("AVG(stats.TotalOpenings / NULLIF(stats.Kills, 0))", "AvgOpeningsPerKill");
+    query.addSelect("AVG(stats.NeutralWins)", "AvgNeutralWins");
+    query.addSelect("AVG(stats.NeutralLosses)", "AvgNeutralLosses");
+    query.addSelect("AVG(stats.CHWins)", "AvgCHWins");
+    query.addSelect("AVG(stats.CHLosses)", "AvgCHLosses");
+    query.addSelect("AVG(stats.GoodTrades)", "AvgGoodTrades");
+    query.addSelect("AVG(stats.BadTrades)", "AvgBadTrades");
+    query.addSelect("AVG(stats.LCancelSuccessRate)", "AvgLCancelSuccessRate");
+    query.addSelect("AVG(stats.IPM)", "AvgIPM");
+    query.groupBy("STRFTIME(" + periodRegex[period] + ", stats.StartTime)");
+
+    const periodAvgs = await query.getRawMany();
+
+    console.log(periodAvgs);
+
+    return periodAvgs;
+  },
+
   async getAvgs(params: QueryParams): Promise<DataAvgs> {
     const db = await dbSource;
     const query = buildQueryFromParams(db, params);
@@ -62,6 +122,7 @@ const methods: WorkerSpec = {
     query.addSelect("AVG(stats.TotalDmgTaken)", "AvgTotalDmgTaken");
     query.addSelect("AVG(stats.Conversions)", "AvgConversions");
     query.addSelect("AVG(stats.TotalOpenings)", "AvgTotalOpenings");
+    query.addSelect("AVG(stats.TotalOpenings / NULLIF(stats.Kills, 0))", "AvgOpeningsPerKill");
     query.addSelect("AVG(stats.NeutralWins)", "AvgNeutralWins");
     query.addSelect("AVG(stats.NeutralLosses)", "AvgNeutralLosses");
     query.addSelect("AVG(stats.CHWins)", "AvgCHWins");
@@ -83,9 +144,6 @@ const methods: WorkerSpec = {
     const oppCharacterQuery = buildQueryFromParams(db, params);
     const oppCodeQuery = buildQueryFromParams(db, params);
     const stageQuery = buildQueryFromParams(db, params);
-
-    console.log("After");
-    console.log(stageQuery.getSql());
 
     //Character counts
     characterQuery.select("stats.Character", "Name");

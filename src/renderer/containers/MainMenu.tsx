@@ -7,12 +7,18 @@ export const MainMenu = () => {
 
   return (
     <div>
-      <Box sx={{ flexGrow: 1 }}>
+      <Box sx={{ flexGrow: 1, width: 1 }}>
         <AppBar position="static">
           <Toolbar>
             <Dashboard></Dashboard>
             <MenuItem key="dashboard" onClick={() => navigate("/dashboard")}>
               <Typography>DashBoard</Typography>
+            </MenuItem>
+            <MenuItem key="tracking" onClick={() => navigate("/tracking")}>
+              <Typography>Tracking</Typography>
+            </MenuItem>
+            <MenuItem key="matchup" onClick={() => navigate("/matchup")}>
+              <Typography>Matchups</Typography>
             </MenuItem>
             <MenuItem key="settings" onClick={() => navigate("/settings")}>
               <Typography>Settings</Typography>

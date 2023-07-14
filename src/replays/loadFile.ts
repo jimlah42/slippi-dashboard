@@ -2,8 +2,8 @@
   from project-slippi/slippi-launcher
 */
 
-import type { MetadataType } from "@slippi/slippi-js";
-import { SlippiGame } from "@slippi/slippi-js";
+import type { MetadataType, StatsType, StockType } from "@slippi/slippi-js";
+import { moves as moveUtils, SlippiGame } from "@slippi/slippi-js";
 import * as fs from "fs-extra";
 import _ from "lodash";
 import moment from "moment";
@@ -55,12 +55,12 @@ export async function loadFile(fullPath: string, playerCodes: string[]): Promise
   const placements = gameEnd.placements!;
 
   let didWin = 0;
+  const stocks = stats.stocks;
   //Only files from Sept 2022 forward have placement data
   if (placements[playerId].position != null && placements[oppId].position != null) {
     didWin = placements[playerId].position == 0 ? 1 : 0;
   } else {
     //Wont handle timeouts properly on old files atm
-    const stocks = stats.stocks;
     for (let i = 0; i < stocks.length; i++) {
       if (stocks[i].endFrame == null) {
         didWin = stocks[i].playerIndex === playerId ? 1 : 0;
@@ -77,7 +77,10 @@ export async function loadFile(fullPath: string, playerCodes: string[]): Promise
 
   const playerActions = stats.actionCounts[playerId];
 
+  const PlayerKillData = getKillData(oppId, stocks, stats);
+  const OppKillData = getKillData(playerId, stocks, stats);
   const gameStats: GameStats = {
+    //General
     StartTime: dateTime.toISOString(),
     Character: getCharNameByIndex(settings.players[playerId].characterId!),
     OppCharacter: getCharNameByIndex(settings.players[oppId].characterId!),
@@ -104,6 +107,22 @@ export async function loadFile(fullPath: string, playerCodes: string[]): Promise
     ),
     IPM: _.round(playerStats.inputsPerMinute.ratio!, 1),
     FileName: filename,
+    //Actions
+    WavedashCount: playerActions.wavedashCount,
+    WavelandCount: playerActions.wavelandCount,
+    AirDodgeCount: playerActions.airDodgeCount,
+    DashDanceCount: playerActions.dashDanceCount,
+    SpotDodgeCount: playerActions.spotDodgeCount,
+    LedgegrabCount: playerActions.ledgegrabCount,
+    RollCount: playerActions.rollCount,
+
+    AvgDeathPercent: OppKillData.AvgKillPercent,
+    AvgKillPercent: PlayerKillData.AvgKillPercent,
+
+    MostCommonKillMove: PlayerKillData.MostCommonKillMove,
+    MostCommonMoveKillby: OppKillData.MostCommonKillMove,
+
+    SDs: OppKillData.OppSDs,
   };
   return gameStats;
 }
@@ -147,4 +166,68 @@ function filenameToDateTime(filename: string): moment.Moment | null {
 
   const time = moment(filenameTime[0]).local();
   return time;
+}
+
+function getKillData(
+  oppId: number,
+  stocks: StockType[],
+  stats: StatsType,
+): { AvgKillPercent: number; MostCommonKillMove: string; OppSDs: number } {
+  const killMoves: Record<string, number> = {};
+  let totalKills = 0;
+  let totalKillPerCent = 0;
+  let SDs = 0;
+
+  for (let i = 0; i < stocks.length; i++) {
+    const stock = stocks[i];
+
+    const punishes = _.get(stats, "conversions") || [];
+    const punishesByPlayer = _.groupBy(punishes, "playerIndex");
+    const playerPunishes = punishesByPlayer[oppId] || [];
+
+    // Only get punishes that killed
+    const killingPunishes = _.filter(playerPunishes, "didKill");
+    const killingPunishesByEndFrame = _.keyBy(killingPunishes, "endFrame");
+    const punishThatEndedStock =
+      stock.endFrame !== null && stock.endFrame !== undefined ? killingPunishesByEndFrame[stock.endFrame] : null;
+
+    if (!punishThatEndedStock) {
+      SDs += 1;
+      continue;
+    }
+
+    const lastMove = _.last(punishThatEndedStock.moves);
+    if (!lastMove) {
+      if ("Grab Release" in killMoves) {
+        killMoves["Grab Release"] = killMoves["Grab Release"] + 1;
+      } else {
+        killMoves["Grab Release"] = 1;
+      }
+      totalKills += 1;
+      totalKillPerCent += stock.currentPercent;
+      continue;
+    }
+
+    const moveName = moveUtils.getMoveName(lastMove.moveId);
+    if (moveName in killMoves) {
+      killMoves[moveName] = killMoves[moveName] + 1;
+    } else {
+      killMoves[moveName] = 1;
+    }
+    totalKillPerCent += stock.currentPercent;
+    totalKills += 1;
+  }
+
+  let MostCommonKillMove = "";
+  let curMax = 0;
+  for (const key in killMoves) {
+    if (killMoves[key] > curMax) {
+      MostCommonKillMove = key;
+      curMax = killMoves[key];
+    }
+  }
+
+  const AvgKillPercent = totalKills != 0 ? totalKillPerCent / totalKills : -1;
+
+  return { AvgKillPercent: AvgKillPercent, MostCommonKillMove: MostCommonKillMove, OppSDs: SDs };
 }

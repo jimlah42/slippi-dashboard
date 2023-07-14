@@ -14,6 +14,7 @@ export interface Progress {
 }
 
 export interface GameStats {
+  //Geneal
   StartTime: string;
   Character: string;
   OppCharacter: string;
@@ -37,4 +38,20 @@ export interface GameStats {
   LCancelSuccessRate: number;
   IPM: number;
   FileName: string;
+  //Actions
+  WavedashCount: number;
+  WavelandCount: number;
+  AirDodgeCount: number;
+  DashDanceCount: number;
+  SpotDodgeCount: number;
+  LedgegrabCount: number;
+  RollCount: number;
+
+  AvgDeathPercent: number;
+  AvgKillPercent: number;
+
+  MostCommonKillMove: string;
+  MostCommonMoveKillby: string;
+
+  SDs: number;
 }

@@ -4,7 +4,7 @@ const characterIcons = require.context("../styles/images/characters", true);
 const stageIcons = require.context("../styles/images/stages", true);
 
 export const getCharacterIcon = (characterName: string | null): string => {
-  if (characterName !== null) {
+  if (characterName !== null && characterName !== "Any") {
     try {
       return characterIcons(`./${characterName}/0/stock.png`);
     } catch (err) {
