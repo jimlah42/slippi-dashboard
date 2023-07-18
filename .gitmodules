@@ -1,0 +1,3 @@
+[submodule "src/replays/slippc"]
+	path = src/replays/slippc
+	url = https://github.com/jimlah42/slippc.git
