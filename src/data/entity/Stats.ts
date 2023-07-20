@@ -41,10 +41,6 @@ export class Stats {
   @Column()
   CHLosses!: number;
   @Column()
-  GoodTrades!: number;
-  @Column()
-  BadTrades!: number;
-  @Column()
   LCancelSuccessRate!: number;
   @Column()
   IPM!: number;

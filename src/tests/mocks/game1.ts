@@ -18,8 +18,6 @@ export const game1: GameStats = {
   NeutralLosses: 15,
   CHWins: 8,
   CHLosses: 6,
-  GoodTrades: 0,
-  BadTrades: 0,
   IPM: 401.0,
   FileName: "Game_20221108T231007.slp",
   Code: "",

@@ -3,7 +3,8 @@ import path from "path";
 import { dbSource } from "../data/datasouce";
 import { Filtered } from "../data/entity/Filtered";
 import { Stats } from "../data/entity/Stats";
-import { loadFile } from "./loadFile";
+// import { loadFile } from "./loadFile";
+import { loadFileC } from "./loadFileC";
 import type { FilesLoadResult, FileWithPath, GameStats } from "./types";
 
 export async function loadFiles(
@@ -47,7 +48,7 @@ export async function loadFiles(
   const process = async (file: FileWithPath) => {
     return new Promise<GameStats | null>((resolve) => {
       setImmediate(async () => {
-        const res = await loadFile(path.join(file.path, file.fileName), playerCodes);
+        const res = await loadFileC(path.join(file.path, file.fileName), playerCodes);
         if (res == null) {
           addToBlackList(file.fileName);
           console.log("failed load");

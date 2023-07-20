@@ -98,8 +98,6 @@ const methods: WorkerSpec = {
     query.addSelect("AVG(stats.NeutralLosses)", "AvgNeutralLosses");
     query.addSelect("AVG(stats.CHWins)", "AvgCHWins");
     query.addSelect("AVG(stats.CHLosses)", "AvgCHLosses");
-    query.addSelect("AVG(stats.GoodTrades)", "AvgGoodTrades");
-    query.addSelect("AVG(stats.BadTrades)", "AvgBadTrades");
     query.addSelect("AVG(stats.LCancelSuccessRate)", "AvgLCancelSuccessRate");
     query.addSelect("AVG(stats.IPM)", "AvgIPM");
     query.groupBy("STRFTIME(" + periodRegex[period] + ", stats.StartTime)");
@@ -127,8 +125,6 @@ const methods: WorkerSpec = {
     query.addSelect("AVG(stats.NeutralLosses)", "AvgNeutralLosses");
     query.addSelect("AVG(stats.CHWins)", "AvgCHWins");
     query.addSelect("AVG(stats.CHLosses)", "AvgCHLosses");
-    query.addSelect("AVG(stats.GoodTrades)", "AvgGoodTrades");
-    query.addSelect("AVG(stats.BadTrades)", "AvgBadTrades");
     query.addSelect("AVG(stats.LCancelSuccessRate)", "AvgLCancelSuccessRate");
     query.addSelect("AVG(stats.IPM)", "AvgIPM");
 

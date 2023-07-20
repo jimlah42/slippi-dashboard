@@ -21,8 +21,6 @@ export interface MonthlyDataAvgs {
   AvgNeutralLosses: number;
   AvgCHWins: number;
   AvgCHLosses: number;
-  AvgGoodTrades: number;
-  AvgBadTrades: number;
   AvgLCancelSuccessRate: number;
   AvgIPM: number;
 }
@@ -42,8 +40,6 @@ export interface DataAvgs {
   AvgNeutralLosses: number;
   AvgCHWins: number;
   AvgCHLosses: number;
-  AvgGoodTrades: number;
-  AvgBadTrades: number;
   AvgLCancelSuccessRate: number;
   AvgIPM: number;
 }

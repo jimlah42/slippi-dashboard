@@ -33,8 +33,6 @@ export interface GameStats {
   NeutralLosses: number;
   CHWins: number;
   CHLosses: number;
-  GoodTrades: number;
-  BadTrades: number;
   LCancelSuccessRate: number;
   IPM: number;
   FileName: string;

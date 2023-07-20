@@ -99,8 +99,6 @@ export async function loadFile(fullPath: string, playerCodes: string[]): Promise
     NeutralLosses: oppStats.neutralWinRatio.count,
     CHWins: playerStats.counterHitRatio.count,
     CHLosses: oppStats.counterHitRatio.count,
-    GoodTrades: playerStats.beneficialTradeRatio.count,
-    BadTrades: oppStats.beneficialTradeRatio.count,
     LCancelSuccessRate: _.round(
       playerActions.lCancelCount.success / (playerActions.lCancelCount.success + playerActions.lCancelCount.fail),
       4,
