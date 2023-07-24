@@ -11,6 +11,8 @@ noPunishPlayer.punishes = null;
 
 describe("parseFile", () => {
   it("should parse a valid file properly", async () => {
+    console.log("Directory");
+    console.log(__dirname);
     const res = await loadFileC.parseFile("./src/tests/test-replays/base_game.slp");
     expect(res).not.toBe(null);
     expect(_.isEqual(res, base_game_data)).toBe(true);

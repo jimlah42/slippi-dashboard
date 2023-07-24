@@ -3,7 +3,7 @@ import util from "node:util";
 import _ from "lodash";
 import path from "path";
 
-import type { GameData, GameStats, PlayerType, PunishType } from "./types";
+import type { GameData, GameStats, PlayerType } from "./types";
 import { getCharNameByIndex, getStageNameByIndex } from "./utils";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const execFile = util.promisify(require("node:child_process").execFile);
