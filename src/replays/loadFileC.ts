@@ -3,14 +3,14 @@ import util from "node:util";
 import _ from "lodash";
 import path from "path";
 
-import type { GameStats } from "./types";
+import type { GameData, GameStats, PlayerType, PunishType } from "./types";
 import { getCharNameByIndex, getStageNameByIndex } from "./utils";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const execFile = util.promisify(require("node:child_process").execFile);
 
 const MIN_GAME_LENGTH_SECONDS = 30;
 
-export async function parseFile(filename: string): Promise<any | null> {
+export async function parseFile(filename: string): Promise<GameData | null> {
   let data;
   try {
     console.log("./src/replays/slippc -i ", filename, " -a ", " - ");
@@ -30,7 +30,7 @@ export async function parseFile(filename: string): Promise<any | null> {
   }
 }
 
-export function validGame(PLAYER_CODE: string[], players: any[], jsonData: any): boolean {
+export function validGame(PLAYER_CODE: string[], players: PlayerType[], jsonData: GameData): boolean {
   if (!PLAYER_CODE.includes(players![0].tag_code) && !PLAYER_CODE.includes(players![1].tag_code)) {
     console.log("Not players game");
     return false;
@@ -45,20 +45,58 @@ export function validGame(PLAYER_CODE: string[], players: any[], jsonData: any):
   return true;
 }
 
-export function getConversions(player: any): number {
+export function getConversions(player: PlayerType): number {
   let conversionCount = 0;
-  for (let i = 0; i < player.punishes.length; i++) {
-    if (player.punishes[i].num_moves > 1) {
+  if (player.punishes == null || player.punishes == undefined) {
+    return 0;
+  }
+  for (let i = 0; i < player.punishes!.length; i++) {
+    if (player.punishes![i].num_moves > 1) {
       conversionCount += 1;
     }
   }
   return conversionCount;
 }
 
+export function getMostCommonKillMove(player: PlayerType): string {
+  const killMoves: Record<string, number> = {};
+  if (player.punishes == null || player.punishes == undefined) {
+    console.log("No punishes");
+    return "";
+  }
+
+  const punishes_that_ended_stock = [];
+  for (let i = 0; i < player.punishes.length; i++) {
+    if (player.punishes![i]!.kill_dir != "NEUT") {
+      punishes_that_ended_stock.push(player.punishes![i]!);
+    }
+  }
+
+  for (let i = 0; i < punishes_that_ended_stock.length; i++) {
+    const moveName: string = punishes_that_ended_stock[i].last_move_name;
+    if (moveName in killMoves) {
+      killMoves[moveName] = killMoves[moveName] + 1;
+    } else {
+      killMoves[moveName] = 1;
+    }
+  }
+
+  let MostCommonKillMove = "";
+  let curMax = 0;
+  for (const key in killMoves) {
+    if (killMoves[key] > curMax) {
+      MostCommonKillMove = key;
+      curMax = killMoves[key];
+    }
+  }
+
+  return MostCommonKillMove;
+}
+
 export async function loadFileC(fullPath: string, playerCodes: string[]): Promise<GameStats | null> {
   const filename = path.basename(fullPath);
 
-  const jsonData = await parseFile(fullPath);
+  const jsonData: GameData | null = await parseFile(fullPath);
 
   if (jsonData == null) {
     console.log("Json data null");
@@ -68,6 +106,11 @@ export async function loadFileC(fullPath: string, playerCodes: string[]): Promis
   const PLAYER_CODE = playerCodes;
 
   const players = jsonData.players;
+
+  if (players == null) {
+    console.log("No players");
+    return null;
+  }
 
   if (!validGame(PLAYER_CODE, players, jsonData)) {
     console.log("Not valid game");
@@ -81,7 +124,7 @@ export async function loadFileC(fullPath: string, playerCodes: string[]): Promis
 
   let didWin = 0;
 
-  if (jsonData.winner_port == jsonData.players[playerId].port) {
+  if (jsonData.winner_port == jsonData.players![playerId].port) {
     didWin = 1;
   } else {
     didWin = 0;
@@ -89,8 +132,8 @@ export async function loadFileC(fullPath: string, playerCodes: string[]): Promis
 
   const dateTime = jsonData.game_time;
 
-  const player = jsonData.players[playerId];
-  const opponent = jsonData.players[oppId];
+  const player = jsonData.players![playerId];
+  const opponent = jsonData.players![oppId];
 
   const gameStats: GameStats = {
     //General
@@ -106,7 +149,7 @@ export async function loadFileC(fullPath: string, playerCodes: string[]): Promis
     KillsConceded: 4 - player.end_stocks + player.self_destructs,
     TotalDmgDone: _.round(player.damage_dealt, 1),
     TotalDmgTaken: _.round(opponent.damage_dealt, 1),
-    Conversions: getConversions(player),
+    Conversions: getConversions(player!),
     TotalOpenings: player.total_openings,
     NeutralWins: player.neutral_wins,
     NeutralLosses: opponent.neutral_wins,
@@ -127,8 +170,8 @@ export async function loadFileC(fullPath: string, playerCodes: string[]): Promis
     AvgDeathPercent: player.mean_death_percent,
     AvgKillPercent: player.mean_kill_percent,
 
-    MostCommonKillMove: "", //TODO Kill move fun
-    MostCommonMoveKillby: "", //TODO Kill move func
+    MostCommonKillMove: getMostCommonKillMove(player),
+    MostCommonMoveKillby: getMostCommonKillMove(opponent),
 
     SDs: player.self_destructs,
   };
