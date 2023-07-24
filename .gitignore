@@ -31,4 +31,3 @@ npm-debug.log.*
 *.sass.d.ts
 *.scss.d.ts
 src/tests/*.spec.ts
-*.slp
