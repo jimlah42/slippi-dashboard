@@ -10,7 +10,7 @@ const execFile = util.promisify(require("node:child_process").execFile);
 
 const MIN_GAME_LENGTH_SECONDS = 30;
 
-async function parseFile(filename: string): Promise<any | null> {
+export async function parseFile(filename: string): Promise<any | null> {
   let data;
   try {
     console.log("./src/replays/slippc -i ", filename, " -a ", " - ");
@@ -18,6 +18,7 @@ async function parseFile(filename: string): Promise<any | null> {
     if (stderr != "") {
       console.log("Exec File error");
       console.log(stderr);
+      return null;
     }
     data = stdout;
     const jsonData = JSON.parse(data);
@@ -29,7 +30,7 @@ async function parseFile(filename: string): Promise<any | null> {
   }
 }
 
-function validGame(PLAYER_CODE: string[], players: any[], jsonData: any): boolean {
+export function validGame(PLAYER_CODE: string[], players: any[], jsonData: any): boolean {
   if (!PLAYER_CODE.includes(players![0].tag_code) && !PLAYER_CODE.includes(players![1].tag_code)) {
     console.log("Not players game");
     return false;
@@ -42,6 +43,16 @@ function validGame(PLAYER_CODE: string[], players: any[], jsonData: any): boolea
   }
 
   return true;
+}
+
+export function getConversions(player: any): number {
+  let conversionCount = 0;
+  for (let i = 0; i < player.punishes.length; i++) {
+    if (player.punishes[i].num_moves > 1) {
+      conversionCount += 1;
+    }
+  }
+  return conversionCount;
 }
 
 export async function loadFileC(fullPath: string, playerCodes: string[]): Promise<GameStats | null> {
@@ -95,7 +106,7 @@ export async function loadFileC(fullPath: string, playerCodes: string[]): Promis
     KillsConceded: 4 - player.end_stocks + player.self_destructs,
     TotalDmgDone: _.round(player.damage_dealt, 1),
     TotalDmgTaken: _.round(opponent.damage_dealt, 1),
-    Conversions: 0, //TODO Function calcs number of punishes with > 1 moves landed
+    Conversions: getConversions(player),
     TotalOpenings: player.total_openings,
     NeutralWins: player.neutral_wins,
     NeutralLosses: opponent.neutral_wins,
