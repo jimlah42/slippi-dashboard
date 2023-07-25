@@ -13,8 +13,11 @@ const MIN_GAME_LENGTH_SECONDS = 30;
 export async function parseFile(filename: string): Promise<GameData | null> {
   let data;
   try {
-    console.log("./src/replays/slippc -i ", filename, " -a ", " - ");
-    const { stdout, stderr } = await execFile("./src/replays/slippc", ["-i", filename, "-a", "-"]);
+    const test = __dirname;
+    const proj_dir = test.slice(0, test.search("src"));
+
+    console.log(proj_dir + "src/replays/slippc", "-i", filename, "-a", "-");
+    const { stdout, stderr } = await execFile(proj_dir + "src/replays/slippc", ["-i", filename, "-a", "-"]);
     if (stderr != "") {
       console.log("Exec File error");
       console.log(stderr);

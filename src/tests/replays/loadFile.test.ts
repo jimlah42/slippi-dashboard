@@ -1,8 +1,8 @@
-import type { GameData } from "@replays/types";
 import fs from "fs";
 import _ from "lodash";
 
 import * as loadFileC from "../../replays/loadFileC";
+import type { GameData } from "../../replays/types";
 
 const raw_data = fs.readFileSync("./src/tests/test-replays/base_game_data.json", "utf8");
 const base_game_data: GameData = JSON.parse(raw_data);
@@ -11,10 +11,12 @@ noPunishPlayer.punishes = null;
 
 describe("parseFile", () => {
   it("should parse a valid file properly", async () => {
-    console.log("Directory");
-    console.log(__dirname);
-    const res = await loadFileC.parseFile("./src/tests/test-replays/base_game.slp");
+    const test = __dirname;
+    const proj_dir = test.slice(0, test.search("src"));
+    console.log(proj_dir + "src/tests/test-replays/base_game.slp");
+    const res: GameData | null = await loadFileC.parseFile(proj_dir + "src/tests/test-replays/base_game.slp");
     expect(res).not.toBe(null);
+    base_game_data!.original_file = res!.original_file;
     expect(_.isEqual(res, base_game_data)).toBe(true);
   });
 });
