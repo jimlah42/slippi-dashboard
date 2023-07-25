@@ -109,6 +109,14 @@ export function getGameMode(matchId: string): GameMode {
   }
 }
 
+export function getLCancelRate(l_cancels_hit: number, l_cancels_missed: number): number | null {
+  if (l_cancels_hit + l_cancels_missed != 0) {
+    return _.round(l_cancels_hit / (l_cancels_hit + l_cancels_missed), 4);
+  } else {
+    return null;
+  }
+}
+
 export async function loadFileC(fullPath: string, playerCodes: string[]): Promise<GameStats | null> {
   const filename = path.basename(fullPath);
 
@@ -151,13 +159,6 @@ export async function loadFileC(fullPath: string, playerCodes: string[]): Promis
   const player = jsonData.players![playerId];
   const opponent = jsonData.players![oppId];
 
-  let lcancelRate;
-  if (player.l_cancels_hit + player.l_cancels_missed != 0) {
-    lcancelRate = _.round(player.l_cancels_hit / (player.l_cancels_hit + player.l_cancels_missed), 4);
-  } else {
-    lcancelRate = null;
-  }
-
   const gameStats: GameStats = {
     //General
     StartTime: dateTime,
@@ -179,7 +180,7 @@ export async function loadFileC(fullPath: string, playerCodes: string[]): Promis
     NeutralLosses: opponent.neutral_wins,
     CHWins: player.counters,
     CHLosses: opponent.counters,
-    LCancelSuccessRate: lcancelRate,
+    LCancelSuccessRate: getLCancelRate(player.l_cancels_hit, player.l_cancels_missed),
     IPM: _.round(player.actions_per_min, 1),
     FileName: filename,
     //Actions

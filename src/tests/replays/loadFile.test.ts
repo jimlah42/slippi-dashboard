@@ -53,3 +53,13 @@ describe("getGameMode", () => {
     expect(res.valueOf === GameMode.UNKNOWN.valueOf).toBe(true);
   });
 });
+
+describe("getLCancelRate", () => {
+  it("should calculate correct rate from base game", () => {
+    const player = base_game_data.players![1];
+    expect(loadFileC.getLCancelRate(player.l_cancels_hit, player.l_cancels_missed)).toBe(0.7895);
+  });
+  it("should return null if no l cancels attempted", () => {
+    expect(loadFileC.getLCancelRate(0, 0)).toBe(null);
+  });
+});
