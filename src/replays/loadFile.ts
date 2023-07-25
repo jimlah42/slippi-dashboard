@@ -9,7 +9,7 @@ import _ from "lodash";
 import moment from "moment";
 import path from "path";
 
-import type { GameStats } from "./types";
+import { GameMode, GameStats } from "./types";
 import { getCharNameByIndex, getStageNameByIndex } from "./utils";
 
 const MIN_GAME_LENGTH_SECONDS = 30;
@@ -82,7 +82,7 @@ export async function loadFile(fullPath: string, playerCodes: string[]): Promise
   const gameStats: GameStats = {
     //General
     StartTime: dateTime.toISOString(),
-    GameMode: 0,
+    GameMode: GameMode.UNKNOWN,
     Character: getCharNameByIndex(settings.players[playerId].characterId!),
     OppCharacter: getCharNameByIndex(settings.players[oppId].characterId!),
     Code: settings.players[playerId].connectCode,
@@ -100,10 +100,7 @@ export async function loadFile(fullPath: string, playerCodes: string[]): Promise
     NeutralLosses: oppStats.neutralWinRatio.count,
     CHWins: playerStats.counterHitRatio.count,
     CHLosses: oppStats.counterHitRatio.count,
-    LCancelSuccessRate: _.round(
-      playerActions.lCancelCount.success / (playerActions.lCancelCount.success + playerActions.lCancelCount.fail),
-      4,
-    ),
+    LCancelSuccessRate: null,
     IPM: _.round(playerStats.inputsPerMinute.ratio!, 1),
     FileName: filename,
     //Actions

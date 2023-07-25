@@ -43,7 +43,7 @@ export class Stats {
   @Column()
   CHLosses!: number;
   @Column({ nullable: true })
-  LCancelSuccessRate!: number;
+  LCancelSuccessRate?: number;
   @Column()
   IPM!: number;
   @Column()
