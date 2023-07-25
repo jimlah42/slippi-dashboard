@@ -42,8 +42,8 @@ export class Stats {
   CHWins!: number;
   @Column()
   CHLosses!: number;
-  @Column({ nullable: true })
-  LCancelSuccessRate?: number;
+  @Column({ type: "float", nullable: true })
+  LCancelSuccessRate!: number | null;
   @Column()
   IPM!: number;
   @Column()
