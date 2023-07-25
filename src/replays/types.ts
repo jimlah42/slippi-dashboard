@@ -13,9 +13,17 @@ export interface Progress {
   total: number;
 }
 
+export enum GameMode {
+  UNKNOWN = 0,
+  DIRECT = 1,
+  RANKED = 2,
+  UNRANKED = 3,
+}
+
 export interface GameStats {
   //Geneal
   StartTime: string;
+  GameMode: GameMode;
   Character: string;
   OppCharacter: string;
   Code: string;
@@ -33,7 +41,7 @@ export interface GameStats {
   NeutralLosses: number;
   CHWins: number;
   CHLosses: number;
-  LCancelSuccessRate: number;
+  LCancelSuccessRate: number | null;
   IPM: number;
   FileName: string;
   //Actions

@@ -3,7 +3,7 @@ import util from "node:util";
 import _ from "lodash";
 import path from "path";
 
-import type { GameData, GameStats, PlayerType } from "./types";
+import { GameData, GameMode, GameStats, PlayerType } from "./types";
 import { getCharNameByIndex, getStageNameByIndex } from "./utils";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const execFile = util.promisify(require("node:child_process").execFile);
@@ -96,6 +96,18 @@ export function getMostCommonKillMove(player: PlayerType): string {
   return MostCommonKillMove;
 }
 
+export function getGameMode(matchId: string): GameMode {
+  if (matchId.includes("direct")) {
+    return GameMode.DIRECT;
+  } else if (matchId.includes("ranked")) {
+    return GameMode.RANKED;
+  } else if (matchId.includes("unranked")) {
+    return GameMode.UNRANKED;
+  } else {
+    return GameMode.UNKNOWN;
+  }
+}
+
 export async function loadFileC(fullPath: string, playerCodes: string[]): Promise<GameStats | null> {
   const filename = path.basename(fullPath);
 
@@ -138,9 +150,17 @@ export async function loadFileC(fullPath: string, playerCodes: string[]): Promis
   const player = jsonData.players![playerId];
   const opponent = jsonData.players![oppId];
 
+  let lcancelRate;
+  if (player.l_cancels_hit + player.l_cancels_missed != 0) {
+    lcancelRate = _.round(player.l_cancels_hit / (player.l_cancels_hit + player.l_cancels_missed), 4);
+  } else {
+    lcancelRate = null;
+  }
+
   const gameStats: GameStats = {
     //General
     StartTime: dateTime,
+    GameMode: getGameMode(jsonData.match_id),
     Character: getCharNameByIndex(player.char_id),
     OppCharacter: getCharNameByIndex(opponent.char_id),
     Code: player.tag_code,
@@ -158,7 +178,7 @@ export async function loadFileC(fullPath: string, playerCodes: string[]): Promis
     NeutralLosses: opponent.neutral_wins,
     CHWins: player.counters,
     CHLosses: opponent.counters,
-    LCancelSuccessRate: _.round(player.l_cancels_hit / (player.l_cancels_hit + player.l_cancels_missed), 4),
+    LCancelSuccessRate: lcancelRate,
     IPM: _.round(player.actions_per_min, 1),
     FileName: filename,
     //Actions

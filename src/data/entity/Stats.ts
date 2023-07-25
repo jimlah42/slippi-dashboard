@@ -7,6 +7,8 @@ export class Stats {
   @PrimaryColumn("datetime")
   StartTime!: string;
   @Column()
+  GameMode!: number;
+  @Column()
   Character!: string;
   @Column()
   OppCharacter!: string;
@@ -40,7 +42,7 @@ export class Stats {
   CHWins!: number;
   @Column()
   CHLosses!: number;
-  @Column()
+  @Column({ nullable: true })
   LCancelSuccessRate!: number;
   @Column()
   IPM!: number;
