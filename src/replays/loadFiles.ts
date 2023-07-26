@@ -69,13 +69,15 @@ export async function loadFiles(
               .into(Stats)
               .values(res)
               .execute()
+              .then(() => {
+                console.log("Loaded file to db");
+              })
               .catch((err) => {
                 console.warn(err);
                 addToBlackList(file.fileName);
               });
           }
           gamesList.push(res!);
-          console.log("Loaded file to db");
           vaildLoads += 1;
           totalLoads += 1;
           callback(totalLoads, total);

@@ -27,7 +27,7 @@ let progressSubject: Subject<Progress> = new Subject();
 const methods: WorkerSpec = {
   async dispose(): Promise<void> {
     progressSubject.complete();
-    console.log("dispose worker");
+    console.log("replay: dispose worker");
   },
 
   getProgressObservable(): Observable<Progress> {
