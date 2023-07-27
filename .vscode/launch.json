@@ -3,7 +3,7 @@
   "configurations": [
     {
       "name": "Electron: Main",
-      "type": "node",
+      "type": "pwa-node",
       "request": "launch",
       "protocol": "inspector",
       "runtimeExecutable": "npm",
@@ -14,11 +14,18 @@
     },
     {
       "name": "Electron: Renderer",
-      "type": "chrome",
+      "type": "pwa-chrome",
       "request": "attach",
       "port": 9223,
       "webRoot": "${workspaceFolder}",
       "timeout": 15000
+    },
+    {
+      "name": "Electron: Attach Main",
+      "type": "pwa-node",
+      "request": "attach",
+      "port": 5858,
+      "cwd": "${workspaceFolder}"
     }
   ],
   "compounds": [
