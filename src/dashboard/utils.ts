@@ -30,7 +30,9 @@ export function buildQueryFromParams(db: DataSource, params: QueryParams): Selec
   if (params.OppCharacter != null) {
     query.andWhere("stats.OppCharacter = :OppCharacter", { OppCharacter: params.OppCharacter });
   }
-
+  if (params.gameMode != null) {
+    query.andWhere("stats.gameMode = :gameMode", { gameMode: params.gameMode });
+  }
   // console.log(query.getSql());
 
   return query;

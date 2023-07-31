@@ -5,6 +5,7 @@ export interface QueryParams {
   OppCharacter?: string;
   NoOfGames?: number;
   period?: string;
+  gameMode?: number;
 }
 
 export interface MonthlyDataAvgs {

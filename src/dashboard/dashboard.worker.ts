@@ -37,8 +37,6 @@ const methods: WorkerSpec = {
     winQuery.select("COUNT(*)", "Wins");
     winQuery.andWhere("stats.didWin = 1");
 
-    // console.log(winQuery.getSql());
-
     const Wins = await winQuery.getRawOne();
 
     lossQuery.addSelect("COUNT(*)", "Losses");
@@ -68,20 +66,6 @@ const methods: WorkerSpec = {
       week: "'%Y-%m'",
       none: "'%Y-%m'",
     };
-    // switch (period) {
-    //   case "year":
-    //     query.select("STRFTIME('%Y', stats.StartTime)", "Period");
-    //     break;
-    //   case "month":
-    //     query.select("STRFTIME('%Y-%m', stats.StartTime)", "Period");
-    //     break;
-    //   case "week":
-    //     query.select("STRFTIME('%Y-%m', stats.StartTime)", "Period");
-    //     break;
-    //   default:
-    //     query.select("STRFTIME('%', stats.StartTime)", "Period");
-    //     break;
-    // }
 
     query.select("STRFTIME(" + periodRegex[period] + ", stats.StartTime)", "Period");
 
@@ -169,9 +153,6 @@ const methods: WorkerSpec = {
     stageQuery.groupBy("stats.Stage");
     stageQuery.orderBy("Count", "DESC");
 
-    console.log("After");
-    console.log(stageQuery.getSql());
-
     const CharacterCount = await db
       .createQueryBuilder()
       .select("*")
@@ -203,11 +184,6 @@ const methods: WorkerSpec = {
       .from("(" + stageQuery.getQuery() + ")", "result")
       .setParameters(stageQuery.getParameters())
       .getRawMany();
-
-    // const CharacterCount = await characterQuery.getRawMany();
-    // const OppCharacterCount = await oppCharacterQuery.getRawMany();
-    // const OppCodeCount = await oppCodeQuery.getRawMany();
-    // const StageCount = await stageQuery.getRawMany();
 
     const Count: DataCounts = {
       CharacterCount: CharacterCount,

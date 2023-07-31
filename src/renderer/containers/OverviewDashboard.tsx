@@ -3,6 +3,7 @@ import { Card, Paper, ToggleButton, ToggleButtonGroup, Typography } from "@mui/m
 import Grid from "@mui/material/Grid";
 import React from "react";
 
+import { GameMode } from "../../replays/types";
 import { CharacterSelect } from "../components/CharacterSelect";
 import { WinLoss } from "../components/charts/WinLoss";
 import { CountDataTable } from "../components/CountDataTable";
@@ -78,6 +79,28 @@ export const OveriewDashboard = () => {
     }
   };
 
+  const [mode, setMode] = React.useState<string | null>("all");
+  const handleMode = (_event: React.MouseEvent<HTMLElement>, mode: string | null) => {
+    setMode(mode);
+    switch (mode) {
+      case "all":
+        setParams({ ...currParams, gameMode: undefined });
+        break;
+      case "ranked":
+        setParams({ ...currParams, gameMode: GameMode.RANKED.valueOf() });
+        break;
+      case "unranked":
+        setParams({ ...currParams, gameMode: GameMode.UNRANKED.valueOf() });
+        break;
+      case "direct":
+        setParams({ ...currParams, gameMode: GameMode.DIRECT.valueOf() });
+        break;
+      default:
+        setParams({ ...currParams, gameMode: undefined });
+        break;
+    }
+  };
+
   return (
     <div>
       <div>
@@ -92,6 +115,12 @@ export const OveriewDashboard = () => {
           <CharacterSelect onChange={handleCharChange}></CharacterSelect>
           <Typography>&nbsp;vs&nbsp;</Typography>
           <CharacterSelect onChange={handleOppCharChange}></CharacterSelect>
+          <ToggleButtonGroup value={mode} exclusive onChange={handleMode} color="primary">
+            <ToggleButton value="all">All</ToggleButton>
+            <ToggleButton value="ranked">Ranked</ToggleButton>
+            <ToggleButton value="unranked">Unranked</ToggleButton>
+            <ToggleButton value="direct">Direct</ToggleButton>
+          </ToggleButtonGroup>
         </Paper>
       </div>
 
