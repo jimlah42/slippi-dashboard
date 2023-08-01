@@ -11,7 +11,7 @@ import { GeneralStatsTable } from "../components/GeneralStatsTable";
 import { PlayTimeTable } from "../components/PlayTimeTable";
 import { StageWinLoss } from "../components/StageWinLoss";
 import { useDashboard } from "../lib/hooks/useDashboard";
-import { daysAgo, startOfCurrent } from "../lib/time";
+import { startOfCurrent } from "../lib/time";
 
 export const OveriewDashboard = () => {
   const getPrevAvgs = useDashboard((store) => store.getPrevAvgs);
