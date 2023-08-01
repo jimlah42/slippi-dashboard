@@ -55,7 +55,7 @@ export function getConversions(player: PlayerType): number {
     return 0;
   }
   for (let i = 0; i < player.punishes!.length; i++) {
-    if (player.punishes![i].num_moves > 1) {
+    if (player.punishes![i].num_moves > 1 || player.punishes![i].kill_dir != "NEUT") {
       conversionCount += 1;
     }
   }

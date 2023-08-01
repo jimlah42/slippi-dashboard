@@ -113,7 +113,9 @@ const methods: WorkerSpec = {
     query.addSelect("AVG(stats.IPM)", "AvgIPM");
 
     const sums = await query.getRawOne();
-
+    if (params.period) {
+      sums["Period"] = params.period;
+    }
     console.log(sums);
 
     return sums;
@@ -192,6 +194,9 @@ const methods: WorkerSpec = {
       StageCount: StageCount,
     };
 
+    if (params.period) {
+      Count["Period"] = params.period;
+    }
     console.log(Count);
 
     return Count;

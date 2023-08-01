@@ -62,7 +62,7 @@ export const OveriewDashboard = () => {
         setParams({ ...currParams, NoOfGames: undefined, startDate: undefined, period: undefined });
         break;
       case "week":
-        setParams({ ...currParams, NoOfGames: undefined, startDate: daysAgo(7), period: "week" });
+        setParams({ ...currParams, NoOfGames: undefined, startDate: startOfCurrent("week"), period: "week" });
         break;
       case "month":
         setParams({ ...currParams, NoOfGames: undefined, startDate: startOfCurrent("month"), period: "month" });
@@ -106,10 +106,10 @@ export const OveriewDashboard = () => {
       <div>
         <Paper elevation={0} sx={{ display: "flex", flexWrap: "wrap" }}>
           <ToggleButtonGroup value={date} exclusive onChange={handleDate} color="primary">
-            <ToggleButton value="all">All</ToggleButton>
-            <ToggleButton value="week">Week</ToggleButton>
-            <ToggleButton value="month">Month</ToggleButton>
-            <ToggleButton value="year">Year</ToggleButton>
+            <ToggleButton value="all">All Time</ToggleButton>
+            <ToggleButton value="week">This Week</ToggleButton>
+            <ToggleButton value="month">This Month</ToggleButton>
+            <ToggleButton value="year">This Year</ToggleButton>
             <ToggleButton value="ten">Last 10 games</ToggleButton>
           </ToggleButtonGroup>
           <CharacterSelect onChange={handleCharChange}></CharacterSelect>

@@ -18,7 +18,7 @@ export const PlayTimeTable: React.FC<{
           <TableRow>
             <StatCellsWithComparison
               title="Games Played:"
-              period={PrevAvgs?.Period != null ? PrevAvgs.Period : ""}
+              period={PrevAvgs?.Period != null ? "Last " + PrevAvgs.Period : ""}
               curValue={Avgs?.TotalGames ? Avgs.TotalGames : 0}
               prevValue={PrevAvgs?.TotalGames ? PrevAvgs.TotalGames : 0}
               suffix=""
@@ -27,7 +27,7 @@ export const PlayTimeTable: React.FC<{
           <TableRow>
             <StatCellsWithComparison
               title="Hours Played:"
-              period={PrevAvgs?.Period != null ? PrevAvgs.Period : ""}
+              period={PrevAvgs?.Period != null ? "Last " + PrevAvgs.Period : ""}
               curValue={Avgs?.AvgDuration != null ? round((Avgs?.AvgDuration / 61 / 60) * Avgs?.TotalGames, 2) : 0}
               prevValue={
                 PrevAvgs?.AvgDuration != null ? round((PrevAvgs?.AvgDuration / 61 / 60) * PrevAvgs?.TotalGames, 2) : 0
@@ -38,7 +38,7 @@ export const PlayTimeTable: React.FC<{
           <TableRow>
             <StatCellsWithComparison
               title="Unique Opponents:"
-              period={PrevAvgs?.Period != null ? PrevAvgs.Period : ""}
+              period={PrevCounts?.Period != null ? "Last " + PrevCounts.Period : ""}
               curValue={Counts?.OppCodeCount ? Counts?.OppCodeCount.length : 0}
               prevValue={PrevCounts?.OppCodeCount ? PrevCounts?.OppCodeCount.length : 0}
               suffix=""
@@ -47,7 +47,7 @@ export const PlayTimeTable: React.FC<{
           <TableRow>
             <StatCellsWithComparison
               title="Character Played: "
-              period={PrevAvgs?.Period != null ? PrevAvgs.Period : ""}
+              period={PrevCounts?.Period != null ? "Last " + PrevCounts.Period : ""}
               curValue={Counts?.CharacterCount ? Counts?.CharacterCount.length : 0}
               prevValue={PrevCounts?.CharacterCount ? PrevCounts?.CharacterCount.length : 0}
               suffix=""
@@ -56,7 +56,7 @@ export const PlayTimeTable: React.FC<{
           <TableRow>
             <StatCellsWithComparison
               title="Characters Played Against: "
-              period={PrevAvgs?.Period != null ? PrevAvgs.Period : ""}
+              period={PrevCounts?.Period != null ? "Last " + PrevCounts.Period : ""}
               curValue={Counts?.OppCharacterCount ? Counts?.OppCharacterCount.length : 0}
               prevValue={PrevCounts?.OppCharacterCount ? PrevCounts?.OppCharacterCount.length : 0}
               suffix=""

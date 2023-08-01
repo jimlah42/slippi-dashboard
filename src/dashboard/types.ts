@@ -53,6 +53,7 @@ export interface CountType {
 }
 
 export interface DataCounts {
+  Period?: string;
   CharacterCount: CountType[];
   OppCharacterCount: CountType[];
   OppCodeCount: CountType[];
