@@ -111,6 +111,8 @@ const methods: WorkerSpec = {
     query.addSelect("AVG(stats.CHLosses)", "AvgCHLosses");
     query.addSelect("AVG(stats.LCancelSuccessRate)", "AvgLCancelSuccessRate");
     query.addSelect("AVG(stats.IPM)", "AvgIPM");
+    query.addSelect("AVG(stats.AvgDeathPercent)", "AvgDeathPercent");
+    query.addSelect("AVG(stats.AvgKillPercent)", "AvgKillPercent");
 
     const sums = await query.getRawOne();
     if (params.period) {
