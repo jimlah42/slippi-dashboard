@@ -43,6 +43,8 @@ export interface DataAvgs {
   AvgCHLosses: number;
   AvgLCancelSuccessRate: number;
   AvgIPM: number;
+  AvgDeathPercent: number;
+  AvgKillPercent: number;
 }
 
 export interface CountType {
