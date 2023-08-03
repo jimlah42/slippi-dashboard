@@ -59,25 +59,6 @@ export const GeneralStatsTable: React.FC<{ Avgs: DataAvgs | null; PrevAvgs: Data
               suffix=""
             ></StatCellsWithComparison>
           </TableRow>
-          <TableRow>
-            <StatCellsWithComparison
-              title="Average Kill Percent"
-              period={PrevAvgs?.Period != null ? "Last " + PrevAvgs.Period : ""}
-              curValue={Avgs != null ? round(Avgs!.AvgKillPercent, 2) : 0}
-              prevValue={PrevAvgs != null ? round(PrevAvgs!.AvgKillPercent, 2) : 0}
-              invert={true}
-              suffix=""
-            ></StatCellsWithComparison>
-          </TableRow>
-          <TableRow>
-            <StatCellsWithComparison
-              title="Average Death Percent"
-              period={PrevAvgs?.Period != null ? "Last " + PrevAvgs.Period : ""}
-              curValue={Avgs != null ? round(Avgs!.AvgDeathPercent, 2) : 0}
-              prevValue={PrevAvgs != null ? round(PrevAvgs!.AvgDeathPercent, 2) : 0}
-              suffix=""
-            ></StatCellsWithComparison>
-          </TableRow>
         </TableBody>
       </Table>
     </TableContainer>

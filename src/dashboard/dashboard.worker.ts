@@ -5,7 +5,7 @@ import type { ModuleMethods } from "threads/dist/types/master";
 import type { SelectQueryBuilder } from "typeorm";
 
 import type { DataAvgs, DataCounts, QueryParams } from "./types";
-import { buildQueryFromParams } from "./utils";
+import { addAvgsSelect, buildQueryFromParams, createCountQuery, executeCountQuery } from "./utils";
 
 interface Methods {
   dispose: () => Promise<void>;
@@ -58,7 +58,7 @@ const methods: WorkerSpec = {
       period = params.period;
     }
     const db = await dbSource;
-    const query = buildQueryFromParams(db, params);
+    let query = buildQueryFromParams(db, params);
 
     const periodRegex = {
       year: "'%Y'",
@@ -70,20 +70,7 @@ const methods: WorkerSpec = {
     query.select("STRFTIME(" + periodRegex[period] + ", stats.StartTime)", "Period");
 
     query.addSelect("COUNT(*)", "TotalGames");
-    query.addSelect("AVG(stats.Duration)", "AvgDuration");
-    query.addSelect("AVG(stats.Kills)", "AvgKills");
-    query.addSelect("AVG(stats.KillsConceded)", "AvgKillsConceded");
-    query.addSelect("AVG(stats.TotalDmgDone)", "AvgTotalDmgDone");
-    query.addSelect("AVG(stats.TotalDmgTaken)", "AvgTotalDmgTaken");
-    query.addSelect("AVG(stats.Conversions)", "AvgConversions");
-    query.addSelect("AVG(stats.TotalOpenings)", "AvgTotalOpenings");
-    query.addSelect("AVG(stats.TotalOpenings / NULLIF(stats.Kills, 0))", "AvgOpeningsPerKill");
-    query.addSelect("AVG(stats.NeutralWins)", "AvgNeutralWins");
-    query.addSelect("AVG(stats.NeutralLosses)", "AvgNeutralLosses");
-    query.addSelect("AVG(stats.CHWins)", "AvgCHWins");
-    query.addSelect("AVG(stats.CHLosses)", "AvgCHLosses");
-    query.addSelect("AVG(stats.LCancelSuccessRate)", "AvgLCancelSuccessRate");
-    query.addSelect("AVG(stats.IPM)", "AvgIPM");
+    query = addAvgsSelect(query);
     query.groupBy("STRFTIME(" + periodRegex[period] + ", stats.StartTime)");
 
     const periodAvgs = await query.getRawMany();
@@ -95,24 +82,9 @@ const methods: WorkerSpec = {
 
   async getAvgs(params: QueryParams): Promise<DataAvgs> {
     const db = await dbSource;
-    const query = buildQueryFromParams(db, params);
+    let query = buildQueryFromParams(db, params);
     query.select("COUNT(*)", "TotalGames");
-    query.addSelect("AVG(stats.Duration)", "AvgDuration");
-    query.addSelect("AVG(stats.Kills)", "AvgKills");
-    query.addSelect("AVG(stats.KillsConceded)", "AvgKillsConceded");
-    query.addSelect("AVG(stats.TotalDmgDone)", "AvgTotalDmgDone");
-    query.addSelect("AVG(stats.TotalDmgTaken)", "AvgTotalDmgTaken");
-    query.addSelect("AVG(stats.Conversions)", "AvgConversions");
-    query.addSelect("AVG(stats.TotalOpenings)", "AvgTotalOpenings");
-    query.addSelect("AVG(stats.TotalOpenings / NULLIF(stats.Kills, 0))", "AvgOpeningsPerKill");
-    query.addSelect("AVG(stats.NeutralWins)", "AvgNeutralWins");
-    query.addSelect("AVG(stats.NeutralLosses)", "AvgNeutralLosses");
-    query.addSelect("AVG(stats.CHWins)", "AvgCHWins");
-    query.addSelect("AVG(stats.CHLosses)", "AvgCHLosses");
-    query.addSelect("AVG(stats.LCancelSuccessRate)", "AvgLCancelSuccessRate");
-    query.addSelect("AVG(stats.IPM)", "AvgIPM");
-    query.addSelect("AVG(stats.AvgDeathPercent)", "AvgDeathPercent");
-    query.addSelect("AVG(stats.AvgKillPercent)", "AvgKillPercent");
+    query = addAvgsSelect(query);
 
     const sums = await query.getRawOne();
     if (params.period) {
@@ -124,70 +96,15 @@ const methods: WorkerSpec = {
   },
   async getCounts(params: QueryParams): Promise<DataCounts> {
     const db = await dbSource;
-    const characterQuery = buildQueryFromParams(db, params);
-    const oppCharacterQuery = buildQueryFromParams(db, params);
-    const oppCodeQuery = buildQueryFromParams(db, params);
-    const stageQuery = buildQueryFromParams(db, params);
+    const characterQuery = createCountQuery(db, params, "stats.Character");
+    const oppCharacterQuery = createCountQuery(db, params, "stats.oppCharacter");
+    const oppCodeQuery = createCountQuery(db, params, "stats.OppCode");
+    const stageQuery = createCountQuery(db, params, "stats.Stage");
 
-    //Character counts
-    characterQuery.select("stats.Character", "Name");
-    characterQuery.addSelect("COUNT(*)", "Count");
-    characterQuery.addSelect("SUM(stats.DidWin)", "Wins");
-    characterQuery.groupBy("stats.Character");
-    characterQuery.orderBy("Count", "DESC");
-
-    //oppCharacter counts
-    oppCharacterQuery.select("stats.oppCharacter", "Name");
-    oppCharacterQuery.addSelect("COUNT(*)", "Count");
-    oppCharacterQuery.addSelect("SUM(stats.DidWin)", "Wins");
-    oppCharacterQuery.groupBy("stats.oppCharacter");
-    oppCharacterQuery.orderBy("Count", "DESC");
-
-    //oppCodeQuery counts
-    oppCodeQuery.select("stats.OppCode", "Name");
-    oppCodeQuery.addSelect("COUNT(*)", "Count");
-    oppCodeQuery.addSelect("SUM(stats.DidWin)", "Wins");
-    oppCodeQuery.groupBy("stats.OppCode");
-    oppCodeQuery.orderBy("Count", "DESC");
-
-    //stageQuery counts
-    stageQuery.select("stats.Stage", "Name");
-    stageQuery.addSelect("COUNT(*)", "Count");
-    stageQuery.addSelect("SUM(stats.DidWin)", "Wins");
-    stageQuery.groupBy("stats.Stage");
-    stageQuery.orderBy("Count", "DESC");
-
-    const CharacterCount = await db
-      .createQueryBuilder()
-      .select("*")
-      .addSelect("stats.Count - stats.Wins", "Losses")
-      .from("(" + characterQuery.getQuery() + ")", "stats")
-      .setParameters(characterQuery.getParameters())
-      .getRawMany();
-
-    const OppCharacterCount = await db
-      .createQueryBuilder()
-      .select("*")
-      .addSelect("result.Count - result.Wins", "Losses")
-      .from("(" + oppCharacterQuery.getQuery() + ")", "result")
-      .setParameters(oppCharacterQuery.getParameters())
-      .getRawMany();
-
-    const OppCodeCount = await db
-      .createQueryBuilder()
-      .select("*")
-      .addSelect("result.Count - result.Wins", "Losses")
-      .from("(" + oppCodeQuery.getQuery() + ")", "result")
-      .setParameters(oppCodeQuery.getParameters())
-      .getRawMany();
-
-    const StageCount = await db
-      .createQueryBuilder()
-      .select("*")
-      .addSelect("result.Count - result.Wins", "Losses")
-      .from("(" + stageQuery.getQuery() + ")", "result")
-      .setParameters(stageQuery.getParameters())
-      .getRawMany();
+    const CharacterCount = await executeCountQuery(db, characterQuery);
+    const OppCharacterCount = await executeCountQuery(db, oppCharacterQuery);
+    const OppCodeCount = await executeCountQuery(db, oppCodeQuery);
+    const StageCount = await executeCountQuery(db, stageQuery);
 
     const Count: DataCounts = {
       CharacterCount: CharacterCount,
