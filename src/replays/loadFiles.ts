@@ -48,23 +48,22 @@ export async function loadFiles(
   const process = async (file: FileWithPath) => {
     return new Promise<GameStats | null>((resolve) => {
       setImmediate(async () => {
+        totalLoads += 1;
+        callback(totalLoads, total);
         const res = await loadFileC(path.join(file.path, file.fileName), playerCodes);
         if (res == null) {
           addToBlackList(file.fileName);
           console.log("failed load");
-          totalLoads += 1;
-          callback(totalLoads, total);
           resolve(null);
         } else {
           if (filesSeen.has(res.StartTime)) {
             addToBlackList(file.fileName);
             console.warn("Dupe File");
-            totalLoads += 1;
-            callback(totalLoads, total);
             resolve(null);
           } else {
             filesSeen.add(res.StartTime);
-            db.createQueryBuilder()
+            await db
+              .createQueryBuilder()
               .insert()
               .into(Stats)
               .values(res)
@@ -79,8 +78,6 @@ export async function loadFiles(
           }
           gamesList.push(res!);
           vaildLoads += 1;
-          totalLoads += 1;
-          callback(totalLoads, total);
           resolve(res);
         }
       });
@@ -88,6 +85,7 @@ export async function loadFiles(
   };
 
   // console.log(fullSlippiPaths);
+  console.time("Execution time");
   const filePromise = Promise.all(
     files.map((file) => {
       return process(file);
@@ -96,6 +94,7 @@ export async function loadFiles(
 
   await filePromise;
 
+  console.timeEnd("Execution time");
   callback(total, total);
   return {
     filesLoaded: vaildLoads,
