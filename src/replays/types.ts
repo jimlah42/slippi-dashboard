@@ -31,20 +31,30 @@ export interface GameStats {
   Stage: string;
   Duration: number;
   DidWin: number;
+  FileName: string;
+
+  //Stats
   Kills: number;
   KillsConceded: number;
   TotalDmgDone: number;
   TotalDmgTaken: number;
+  AvgDeathPercent: number;
+  AvgKillPercent: number;
+
+  MostCommonKillMove: string;
+  MostCommonMoveKillby: string;
+  MoveAccuracy: number;
+
+  //Neutral
   Conversions: number;
   TotalOpenings: number;
   NeutralWins: number;
   NeutralLosses: number;
   CHWins: number;
   CHLosses: number;
-  LCancelSuccessRate: number | null;
-  IPM: number;
-  FileName: string;
+
   //Actions
+  LCancelSuccessRate: number | null;
   WavedashCount: number;
   WavelandCount: number;
   AirDodgeCount: number;
@@ -52,14 +62,23 @@ export interface GameStats {
   SpotDodgeCount: number;
   LedgegrabCount: number;
   RollCount: number;
-
-  AvgDeathPercent: number;
-  AvgKillPercent: number;
-
-  MostCommonKillMove: string;
-  MostCommonMoveKillby: string;
+  IPM: number;
 
   SDs: number;
+
+  //Defense
+  HitsBlocked: number;
+  ShieldTime: number;
+  PowerShields: number;
+  TechsHit: number;
+  TechsMissed: number;
+  SheildDmgTaken: number;
+  SheildDmgDone: number;
+
+  //LedgeDashes
+  GalintLedgeDashCount: number;
+  AverageGalint: number;
+  MaxGalint: number;
 }
 
 export interface GameData {

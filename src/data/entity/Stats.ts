@@ -71,5 +71,30 @@ export class Stats {
   @Column()
   MostCommonMoveKillby!: string;
   @Column()
+  MoveAccuracy!: number;
+  @Column()
   SDs!: number;
+  //Defense
+  @Column()
+  HitsBlocked!: number;
+  @Column()
+  ShieldTime!: number;
+  @Column()
+  PowerShields!: number;
+  @Column()
+  TechsHit!: number;
+  @Column()
+  TechsMissed!: number;
+  @Column()
+  SheildDmgTaken!: number;
+  @Column()
+  SheildDmgDone!: number;
+
+  //LedgeDashes
+  @Column()
+  GalintLedgeDashCount!: number;
+  @Column()
+  AverageGalint!: number;
+  @Column()
+  MaxGalint!: number;
 }

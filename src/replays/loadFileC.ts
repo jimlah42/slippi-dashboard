@@ -183,6 +183,7 @@ export async function loadFileC(fullPath: string, playerCodes: string[]): Promis
     LCancelSuccessRate: getLCancelRate(player.l_cancels_hit, player.l_cancels_missed),
     IPM: _.round(player.actions_per_min, 1),
     FileName: filename,
+
     //Actions
     WavedashCount: player.wavedashes,
     WavelandCount: player.wavelands,
@@ -197,8 +198,23 @@ export async function loadFileC(fullPath: string, playerCodes: string[]): Promis
 
     MostCommonKillMove: getMostCommonKillMove(player),
     MostCommonMoveKillby: getMostCommonKillMove(opponent),
+    MoveAccuracy: player.move_accuracy,
 
     SDs: player.self_destructs,
+
+    //Defense
+    HitsBlocked: player.hits_blocked,
+    ShieldTime: player.shield_time,
+    PowerShields: player.powershields,
+    TechsHit: player.techs,
+    TechsMissed: player.missed_techs,
+    SheildDmgTaken: player.shield_damage,
+    SheildDmgDone: opponent.shield_damage,
+
+    //LedgeDahes
+    GalintLedgeDashCount: player.galint_ledgedashes,
+    AverageGalint: player.mean_galint,
+    MaxGalint: player.max_galint,
   };
 
   return gameStats;
