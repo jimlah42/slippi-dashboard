@@ -14,7 +14,7 @@ import "reflect-metadata";
 import { dbSourceConfig } from "data/datasouce";
 import { app, BrowserWindow, shell } from "electron";
 import log from "electron-log";
-import { autoUpdater } from "electron-updater";
+// import { autoUpdater } from "electron-updater";
 import path from "path";
 
 import { installModules } from "./installModules";
@@ -23,13 +23,13 @@ import { resolveHtmlPath } from "./util";
 
 installModules();
 
-class AppUpdater {
-  constructor() {
-    log.transports.file.level = "info";
-    autoUpdater.logger = log;
-    // autoUpdater.checkForUpdatesAndNotify();
-  }
-}
+// class AppUpdater {
+//   constructor() {
+//     log.transports.file.level = "info";
+//     autoUpdater.logger = log;
+//     // autoUpdater.checkForUpdatesAndNotify();
+//   }
+// }
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -109,7 +109,7 @@ const createWindow = async () => {
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
-  new AppUpdater();
+  // new AppUpdater();
 };
 
 /**

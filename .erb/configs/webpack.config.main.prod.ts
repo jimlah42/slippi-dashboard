@@ -2,6 +2,7 @@
  * Webpack config for production electron main process
  */
 
+import { fdir } from "fdir";
 import path from "path";
 import TerserPlugin from "terser-webpack-plugin";
 import webpack from "webpack";
@@ -16,8 +17,27 @@ import webpackPaths from "./webpack.paths";
 checkNodeEnv("production");
 deleteSourceMaps();
 
+function resolveWorkers(rootFolder: string): Record<string, string> {
+  const workers: Record<string, string> = {};
+  // eslint-disable-next-line new-cap
+  const crawler = new fdir().glob("./**/*.worker.ts").withFullPaths();
+  const files = crawler.crawl(rootFolder).sync() as string[];
+  files.forEach((filename) => {
+    const basename = path.basename(filename, ".ts");
+    workers[basename] = filename;
+  });
+  return workers;
+}
+
+const devtoolsConfig =
+  process.env.DEBUG_PROD === "true"
+    ? {
+        devtool: "source-map",
+      }
+    : {};
+
 const configuration: webpack.Configuration = {
-  devtool: "source-map",
+  ...devtoolsConfig,
 
   mode: "production",
 
@@ -26,14 +46,12 @@ const configuration: webpack.Configuration = {
   entry: {
     main: path.join(webpackPaths.srcMainPath, "main.ts"),
     preload: path.join(webpackPaths.srcMainPath, "preload.ts"),
+    ...resolveWorkers(webpackPaths.srcPath),
   },
 
   output: {
     path: webpackPaths.distMainPath,
     filename: "[name].js",
-    library: {
-      type: "umd",
-    },
   },
 
   optimization: {
@@ -62,10 +80,6 @@ const configuration: webpack.Configuration = {
       NODE_ENV: "production",
       DEBUG_PROD: false,
       START_MINIMIZED: false,
-    }),
-
-    new webpack.DefinePlugin({
-      "process.type": '"main"',
     }),
   ],
 

@@ -14,13 +14,21 @@ import { merge } from "webpack-merge";
 import checkNodeEnv from "../scripts/check-node-env";
 import deleteSourceMaps from "../scripts/delete-source-maps";
 import baseConfig from "./webpack.config.base";
+import polyfills from "./webpack.config.renderer.polyfills";
 import webpackPaths from "./webpack.paths";
 
 checkNodeEnv("production");
 deleteSourceMaps();
 
+const devtoolsConfig =
+  process.env.DEBUG_PROD === "true"
+    ? {
+        devtool: "source-map",
+      }
+    : {};
+
 const configuration: webpack.Configuration = {
-  devtool: "source-map",
+  ...devtoolsConfig,
 
   mode: "production",
 
@@ -65,29 +73,15 @@ const configuration: webpack.Configuration = {
         test: /\.(woff|woff2|eot|ttf|otf)$/i,
         type: "asset/resource",
       },
+      // Allow direct importing of SVGs
+      {
+        test: /\.svg$/,
+        use: ["@svgr/webpack", "url-loader"],
+      },
       // Images
       {
         test: /\.(png|jpg|jpeg|gif)$/i,
         type: "asset/resource",
-      },
-      // SVG
-      {
-        test: /\.svg$/,
-        use: [
-          {
-            loader: "@svgr/webpack",
-            options: {
-              prettier: false,
-              svgo: false,
-              svgoConfig: {
-                plugins: [{ removeViewBox: false }],
-              },
-              titleProp: true,
-              ref: true,
-            },
-          },
-          "file-loader",
-        ],
       },
     ],
   },
@@ -136,11 +130,7 @@ const configuration: webpack.Configuration = {
       isBrowser: false,
       isDevelopment: process.env.NODE_ENV !== "production",
     }),
-
-    new webpack.DefinePlugin({
-      "process.type": '"renderer"',
-    }),
   ],
 };
 
-export default merge(baseConfig, configuration);
+export default merge(baseConfig, polyfills, configuration);

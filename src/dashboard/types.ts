@@ -24,6 +24,8 @@ export interface MonthlyDataAvgs {
   AvgCHLosses: number;
   AvgLCancelSuccessRate: number;
   AvgIPM: number;
+  AvgDeathPercent: number;
+  AvgKillPercent: number;
 }
 
 export interface DataAvgs {

@@ -198,12 +198,12 @@ export const _ = <unknown>null;
 export const makeEndpoint: EndpointMaker = {
   main: <I extends Payload, O extends Payload>(name: string, _: I, __: O): MainEndpoint<I, O> => {
     if (process.type === "worker") {
-      throw new Error("Unsupported process type");
-    } else if (endpointsRegistered[process.type].indexOf(name) >= 0) {
+      throw new Error("Unsupported process type (worker)");
+    } else if (endpointsRegistered[process.type]?.indexOf(name) >= 0) {
       log.error("Attempt to register duplicate endpoint with name", name, process.type);
       throw new Error("Attempt to register duplicate endpoint");
     } else {
-      endpointsRegistered[process.type].push(name);
+      endpointsRegistered[process.type]?.push(name);
     }
 
     if (process.type === "browser") {
@@ -248,17 +248,17 @@ export const makeEndpoint: EndpointMaker = {
         },
       };
     }
-    throw new Error("Unsupported process type");
+    throw new Error("In main: Unsupported process type " + process.type);
   },
 
   renderer: <I extends Payload>(name: string, _: I): RendererEndpoint<I> => {
     if (process.type === "worker") {
       throw new Error("Unsupported process type");
-    } else if (endpointsRegistered[process.type].indexOf(name) >= 0) {
+    } else if (endpointsRegistered[process.type]?.indexOf(name) >= 0) {
       log.error("Attempt to register duplicate endpoint with name", name, process.type);
       throw new Error("Attempt to register duplicate endpoint");
     } else {
-      endpointsRegistered[process.type].push(name);
+      endpointsRegistered[process.type]?.push(name);
     }
 
     if (process.type === "renderer") {
@@ -289,6 +289,6 @@ export const makeEndpoint: EndpointMaker = {
         },
       };
     }
-    throw new Error("Unsupported process type");
+    throw new Error("In renderer: Unsupported process type " + process.type);
   },
 };

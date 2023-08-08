@@ -1,0 +1,95 @@
+{
+  "productName": "Slippi Dashboard",
+  "appId": "com.github.jimlah.slippi-dashboard",
+  "asar": true,
+  "asarUnpack": [
+    "**\\*.{node,dll}",
+    "./dist/main/*.js",
+    "./node_modules/**/*.{js,json}"
+  ],
+  "files": ["dist", "node_modules", "package.json"],
+  "afterSign": ".erb/scripts/notarize.js",
+  "fileAssociations": {
+    "ext": "slp",
+    "name": "slp",
+    "description": "Slippi File Format",
+    "icon": "./assets/file.ico"
+  },
+  "artifactName": "Slippi-Dashboard-${version}-${os}.${ext}",
+  "mac": {
+    "target": {
+      "target": "default",
+      "arch": "universal"
+    },
+    "fileAssociations": {
+      "ext": "slp",
+      "role": "Viewer"
+    },
+    "type": "distribution",
+    "mergeASARs": false,
+    "hardenedRuntime": true,
+    "entitlements": "assets/entitlements.mac.plist",
+    "entitlementsInherit": "assets/entitlements.mac.plist",
+    "category": "public.app-category.games",
+    "gatekeeperAssess": false,
+    "extendInfo": {
+      "NSAppTransportSecurity": {
+        "NSAllowsArbitraryLoads": true
+      }
+    },
+    "minimumSystemVersion": "10.13.6"
+  },
+  "dmg": {
+    "artifactName": "Slippi-Dashboard-${version}.${ext}",
+    "icon": "assets/icon.icns",
+    "contents": [
+      {
+        "x": 130,
+        "y": 220
+      },
+      {
+        "x": 410,
+        "y": 220,
+        "type": "link",
+        "path": "/Applications"
+      }
+    ]
+  },
+  "win": {
+    "target": ["nsis"],
+    "icon": "assets/icon.ico"
+  },
+  "nsis": {
+    "artifactName": "Slippi-Dashboard-Setup-${version}.${ext}",
+    "include": ".erb/scripts/installer.nsh",
+    "warningsAsErrors": false,
+    "allowElevation": true,
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true
+  },
+  "linux": {
+    "target": ["AppImage"],
+    "category": "Development"
+  },
+  "appImage": {
+    "artifactName": "Slippi-Dashboard-${version}-x86_64.${ext}"
+  },
+  "protocols": [
+    {
+      "name": "slippi",
+      "role": "Viewer",
+      "schemes": ["slippi"]
+    }
+  ],
+  "directories": {
+    "app": "release/app",
+    "buildResources": "assets",
+    "output": "release/build"
+  },
+  "extraResources": ["./assets/include/**"],
+  "publish": {
+    "provider": "github",
+    "owner": "jimlah",
+    "repo": "slippi-dashboard"
+  }
+}
