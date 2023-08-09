@@ -1,4 +1,3 @@
-import fs from "fs";
 import path from "path";
 import { exit } from "process";
 import { DataSource } from "typeorm";
@@ -6,22 +5,12 @@ import { DataSource } from "typeorm";
 import { Filtered } from "../../data/entity/Filtered";
 import { Stats } from "../../data/entity/Stats";
 
-let db;
-try {
-  db = fs.readFileSync(path.resolve("src/tests/data/test.sqlite3"));
-} catch {
-  db = Buffer.from([]);
-}
-
 export const dbSourceConfig = new DataSource({
-  type: "sqljs",
-  database: db,
-  autoSave: true,
-  location: path.resolve("src/tests/data/test.sqlite3"),
+  type: "better-sqlite3",
+  database: path.resolve("src/tests/data/test.sqlite3"),
   entities: [Stats, Filtered],
   synchronize: true,
   logging: false,
-  useLocalForage: true,
 });
 
 // dbSourceConfig

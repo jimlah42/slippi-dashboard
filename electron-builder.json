@@ -37,7 +37,7 @@
         "NSAllowsArbitraryLoads": true
       }
     },
-    "minimumSystemVersion": "10.13.6"
+    "minimumSystemVersion": "10.13.6",
   },
   "dmg": {
     "artifactName": "Slippi-Dashboard-${version}.${ext}",
@@ -86,7 +86,7 @@
     "buildResources": "assets",
     "output": "release/build"
   },
-  "extraResources": ["./assets/include/**"],
+  "extraResources": ["./assets/include/**", "./extraResources/**"],
   "publish": {
     "provider": "github",
     "owner": "jimlah",

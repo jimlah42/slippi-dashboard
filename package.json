@@ -93,9 +93,8 @@
     "react-router-dom": "^6.3.0",
     "recharts": "^2.7.2",
     "reflect-metadata": "^0.1.13",
-    "sql.js": "^1.8.0",
     "threads": "^1.7.0",
-    "typeorm": "^0.3.11",
+    "typeorm": "^0.3.17",
     "zustand": "^4.3.2"
   },
   "devDependencies": {
@@ -201,7 +200,7 @@
     ],
     "logLevel": "quiet"
   },
-   "resolutions": {
+  "resolutions": {
     "postcss": "8"
   }
 }
