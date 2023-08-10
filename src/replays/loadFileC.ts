@@ -11,10 +11,15 @@ const execFile = util.promisify(require("node:child_process").execFile);
 
 const MIN_GAME_LENGTH_SECONDS = 30;
 
-export async function parseFile(filename: string): Promise<GameData | null> {
+export async function parseFile(resourcesPath: string | undefined, filename: string): Promise<GameData | null> {
   let data;
   try {
-    const slippic = path.join(path.dirname(__dirname), "extraResources", "slippc");
+    let slippic;
+    if (resourcesPath) {
+      slippic = path.join(resourcesPath, "src", "extraResources", "slippc");
+    } else {
+      slippic = path.join(path.dirname(__dirname), "extraResources", "slippc");
+    }
     console.log(slippic, "-i", filename, "-a", "-");
     const { stdout, stderr } = await execFile(slippic, ["-i", filename, "-a", "-"]);
     if (stderr != "") {
@@ -115,10 +120,14 @@ export function getLCancelRate(l_cancels_hit: number, l_cancels_missed: number):
   }
 }
 
-export async function loadFileC(fullPath: string, playerCodes: string[]): Promise<GameStats | null> {
+export async function loadFileC(
+  recoursesPath: string | undefined,
+  fullPath: string,
+  playerCodes: string[],
+): Promise<GameStats | null> {
   const filename = path.basename(fullPath);
 
-  const jsonData: GameData | null = await parseFile(fullPath);
+  const jsonData: GameData | null = await parseFile(recoursesPath, fullPath);
 
   if (jsonData == null) {
     console.log("Json data null");

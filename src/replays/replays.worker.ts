@@ -12,7 +12,11 @@ import type { FilesLoadResult, FileWithPath, Progress } from "./types";
 interface Methods {
   dispose: () => Promise<void>;
   getProgressObservable(): Observable<Progress>;
-  loadReplayFiles(files: FileWithPath[], playerCodes: string[]): Promise<FilesLoadResult>;
+  loadReplayFiles(
+    resourcesPath: string | undefined,
+    files: FileWithPath[],
+    playerCodes: string[],
+  ): Promise<FilesLoadResult>;
   getNewFilesInFolder(path: string): Promise<FileWithPath[]>;
   clearData(): Promise<void>;
   clearFiltered(): Promise<void>;
@@ -34,9 +38,15 @@ const methods: WorkerSpec = {
     return Observable.from(progressSubject);
   },
 
-  async loadReplayFiles(files: FileWithPath[], playerCodes: string[]): Promise<FilesLoadResult> {
+  async loadReplayFiles(
+    resourcesPath: string | undefined,
+    files: FileWithPath[],
+    playerCodes: string[],
+  ): Promise<FilesLoadResult> {
     console.log("Wokering loading files");
-    const result = await loadFiles(files, playerCodes, (current, total) => {
+    console.log(resourcesPath);
+
+    const result = await loadFiles(resourcesPath, files, playerCodes, (current, total) => {
       progressSubject.next({ current, total });
     });
     progressSubject.complete();

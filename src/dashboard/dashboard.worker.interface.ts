@@ -7,13 +7,13 @@ import type { WorkerSpec } from "./dashboard.worker";
 
 export type DashboardWorker = RegisteredWorker<WorkerSpec>;
 
-const log = electronLog.scope("replays.worker");
+const log = electronLog.scope("dashboard.worker");
 
 export async function createDashboardWorker(): Promise<DashboardWorker> {
   log.debug("dashboard: Spawning Worker");
 
-  const replayWorker = await registerWorker<WorkerSpec>(new Worker("./dashboard.worker"));
+  const dashboardWorker = await registerWorker<WorkerSpec>(new Worker("./dashboard.worker"));
   log.debug("dashboard: Spawning Worker: Done");
 
-  return replayWorker;
+  return dashboardWorker;
 }

@@ -8,6 +8,7 @@ import { loadFileC } from "./loadFileC";
 import type { FilesLoadResult, FileWithPath, GameStats } from "./types";
 
 export async function loadFiles(
+  resourcesPath: string | undefined,
   files: FileWithPath[],
   playerCodes: string[],
   callback: (current: number, total: number) => void = () => null,
@@ -50,7 +51,7 @@ export async function loadFiles(
       setImmediate(async () => {
         totalLoads += 1;
         callback(totalLoads, total);
-        const res = await loadFileC(path.join(file.path, file.fileName), playerCodes);
+        const res = await loadFileC(resourcesPath, path.join(file.path, file.fileName), playerCodes);
         if (res == null) {
           addToBlackList(file.fileName);
           console.log("failed load");
@@ -69,7 +70,7 @@ export async function loadFiles(
               .values(res)
               .execute()
               .then(() => {
-                console.log("Loaded file to db");
+                // console.log("Loaded file to db");
               })
               .catch((err) => {
                 console.warn(err);

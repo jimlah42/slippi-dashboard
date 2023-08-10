@@ -19,7 +19,7 @@
   "mac": {
     "target": {
       "target": "default",
-      "arch": "universal"
+      "arch": "arm64"
     },
     "fileAssociations": {
       "ext": "slp",
@@ -86,7 +86,7 @@
     "buildResources": "assets",
     "output": "release/build"
   },
-  "extraResources": ["./assets/include/**", "./extraResources/**"],
+  "extraResources": ["./assets/include/**", "./src/extraResources/**"],
   "publish": {
     "provider": "github",
     "owner": "jimlah",

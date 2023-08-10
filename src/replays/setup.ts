@@ -1,3 +1,5 @@
+import { app } from "electron";
+
 import {
   ipc_clearCode,
   ipc_clearData,
@@ -17,10 +19,15 @@ export default function setupReplayIpc() {
     worker.getProgressObservable().subscribe((progress) => {
       ipc_loadProgressUpdatedEvent.main!.trigger(progress).catch(console.warn);
     });
-    const result = await worker.loadReplayFiles(files, playerCodes);
+    let resPath;
+    if (app.isPackaged) {
+      resPath = process.resourcesPath;
+    } else {
+      resPath = undefined;
+    }
+    const result = await worker.loadReplayFiles(resPath, files, playerCodes);
     return result;
   });
-
   ipc_getNewFiles.main!.handle(async ({ path }) => {
     const worker = await replayBrowserWorker;
     const result = await worker.getNewFilesInFolder(path);
