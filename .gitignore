@@ -12,6 +12,7 @@ pids
 
 #slippi tests
 src/tests/replays/parseFile.test.ts
+src/tests/dashboard/queryBulder.test.ts
 
 # Coverage directory used by tools like istanbul
 coverage
