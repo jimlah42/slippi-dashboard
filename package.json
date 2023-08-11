@@ -34,12 +34,17 @@
     "postinstall": "patch-package && ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts",
     "dev": "yarn run start --env mock",
     "start": "ts-node ./.erb/scripts/check-port-in-use.js && yarn run start:renderer",
-    "start:main": "cross-env NODE_ENV=development electronmon -r ts-node/register/transpile-only ./src/main/main.ts",
+    "start:main": "cross-env NODE_ENV=development electronmon -r ts-node/register/transpile-only ./src/main/main.ts --inspect=5858 --remote-debugging-port=9223",
     "start:preload": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.preload.dev.ts",
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
     "test": "jest --verbose",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged --quiet"
+    }
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
