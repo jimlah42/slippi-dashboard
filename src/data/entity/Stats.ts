@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/explicit-member-accessibility */
 import { Column, Entity, PrimaryColumn } from "typeorm";
 
-@Entity()
+@Entity("stats")
 export class Stats {
   @PrimaryColumn("datetime")
   StartTime!: string;

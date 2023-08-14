@@ -1,4 +1,4 @@
-import { dbSource } from "data/datasouce";
+import { createConnection } from "data/datasouce";
 import { Filtered } from "data/entity/Filtered";
 import { Stats } from "data/entity/Stats";
 import type { ModuleMethods } from "threads/dist/types/master";
@@ -13,15 +13,16 @@ interface Methods {
   dispose: () => Promise<void>;
   getProgressObservable(): Observable<Progress>;
   loadReplayFiles(
-    resourcesPath: string | undefined,
+    resPath: string | undefined,
+    dbPath: string,
     files: FileWithPath[],
     playerCodes: string[],
   ): Promise<FilesLoadResult>;
-  getNewFilesInFolder(path: string): Promise<FileWithPath[]>;
-  clearData(): Promise<void>;
-  clearFiltered(): Promise<void>;
-  clearCode(playerCode: string): Promise<void>;
-  refreshDB: () => Promise<void>;
+  getNewFilesInFolder(resPath: string, path: string): Promise<FileWithPath[]>;
+  clearData(resPath: string): Promise<void>;
+  clearFiltered(resPath: string): Promise<void>;
+  clearCode(resPath: string, playerCode: string): Promise<void>;
+  refreshDB: (resPath: string) => Promise<void>;
 }
 
 export type WorkerSpec = ModuleMethods & Methods;
@@ -39,14 +40,14 @@ const methods: WorkerSpec = {
   },
 
   async loadReplayFiles(
-    resourcesPath: string | undefined,
+    resPath: string | undefined,
+    dbPath: string,
     files: FileWithPath[],
     playerCodes: string[],
   ): Promise<FilesLoadResult> {
     console.log("Wokering loading files");
-    console.log(resourcesPath);
 
-    const result = await loadFiles(resourcesPath, files, playerCodes, (current, total) => {
+    const result = await loadFiles(resPath, dbPath, files, playerCodes, (current, total) => {
       progressSubject.next({ current, total });
     });
     progressSubject.complete();
@@ -54,34 +55,34 @@ const methods: WorkerSpec = {
     return result;
   },
 
-  async getNewFilesInFolder(path: string): Promise<FileWithPath[]> {
-    const result = await getNewFiles(path);
+  async getNewFilesInFolder(resPath: string, path: string): Promise<FileWithPath[]> {
+    const result = await getNewFiles(resPath, path);
     return result;
   },
 
-  async clearData(): Promise<void> {
-    const db = await dbSource;
+  async clearData(resPath: string): Promise<void> {
+    const db = await createConnection(resPath);
     console.log("Clearing all data...");
     await db.manager.clear(Stats);
     await db.manager.clear(Filtered);
     console.log("Data cleared");
   },
-  async clearFiltered(): Promise<void> {
-    const db = await dbSource;
+  async clearFiltered(resPath: string): Promise<void> {
+    const db = await createConnection(resPath);
     console.log("Clearing filtered data...");
     await db.manager.clear(Filtered);
     console.log("Filtered cleared");
   },
-  async clearCode(playerCode: string): Promise<void> {
-    const db = await dbSource;
+  async clearCode(resPath: string, playerCode: string): Promise<void> {
+    const db = await createConnection(resPath);
     console.log("Clearing " + playerCode + "data...");
     await db.manager.delete(Stats, { Code: playerCode });
     console.log(playerCode + " cleared");
   },
 
-  async refreshDB(): Promise<void> {
+  async refreshDB(resPath: string): Promise<void> {
+    const db = await createConnection(resPath);
     console.log("Refreshing DB...");
-    const db = await dbSource;
     await db.destroy();
     await db.initialize();
     console.log("Refreshed");

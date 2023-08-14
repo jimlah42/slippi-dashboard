@@ -15,8 +15,8 @@ export async function parseFile(resourcesPath: string | undefined, filename: str
   let data;
   try {
     let slippic;
-    if (resourcesPath) {
-      slippic = path.join(resourcesPath, "src", "extraResources", "slippc");
+    if (resourcesPath != undefined) {
+      slippic = path.join(resourcesPath, "slippc");
     } else {
       slippic = path.join(path.dirname(__dirname), "extraResources", "slippc");
     }

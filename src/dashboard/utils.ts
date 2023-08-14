@@ -5,6 +5,7 @@ import type { QueryParams } from "./types";
 
 export function buildQueryFromParams(db: DataSource, params: QueryParams): SelectQueryBuilder<Stats> {
   let query: SelectQueryBuilder<Stats>;
+  Stats.toString();
   if (params.NoOfGames != null) {
     const limitQuery = db
       .getRepository(Stats)

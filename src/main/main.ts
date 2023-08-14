@@ -11,7 +11,7 @@
  */
 import "reflect-metadata";
 
-import { dbSourceConfig } from "data/datasouce";
+import type CrossProcessExports from "electron";
 import { app, BrowserWindow, shell } from "electron";
 import log from "electron-log";
 // import { autoUpdater } from "electron-updater";
@@ -20,8 +20,6 @@ import path from "path";
 import { installModules } from "./installModules";
 import MenuBuilder from "./menu";
 import { resolveHtmlPath } from "./util";
-
-installModules();
 
 // class AppUpdater {
 //   constructor() {
@@ -32,6 +30,9 @@ installModules();
 // }
 
 let mainWindow: BrowserWindow | null = null;
+let menu: CrossProcessExports.Menu | null = null;
+
+const isMac = process.platform === "darwin";
 
 if (process.env.NODE_ENV === "production") {
   const sourceMapSupport = require("source-map-support");
@@ -56,6 +57,16 @@ const installExtensions = async () => {
     )
     .catch(console.log);
 };
+let db: string;
+let resPath: string | undefined;
+if (app.isPackaged) {
+  db = path.join(process.resourcesPath, "src", "extraResources", "test.sqlite3");
+  resPath = path.join(process.resourcesPath, "src", "extraResources");
+} else {
+  db = path.join(path.dirname(__dirname), "extraResources", "test.sqlite3");
+  resPath = undefined;
+}
+console.log(db);
 
 const createWindow = async () => {
   if (isDebug) {
@@ -66,6 +77,7 @@ const createWindow = async () => {
     ? path.join(process.resourcesPath, "assets")
     : path.join(__dirname, "../../assets");
 
+  await installModules(resPath, db);
   const getAssetPath = (...paths: string[]): string => {
     return path.join(RESOURCES_PATH, ...paths);
   };
@@ -99,7 +111,7 @@ const createWindow = async () => {
   });
 
   const menuBuilder = new MenuBuilder(mainWindow);
-  menuBuilder.buildMenu();
+  menu = menuBuilder.buildMenu();
 
   // Open urls in the user's browser
   mainWindow.webContents.setWindowOpenHandler((edata) => {
@@ -119,18 +131,19 @@ const createWindow = async () => {
 app.on("window-all-closed", () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
-  if (process.platform !== "darwin") {
-    dbSourceConfig
-      .destroy()
-      .then(() => {
-        console.log("Disconnected from db");
-        app.quit();
-      })
-      .catch((err) => {
-        console.log(err);
-        app.quit();
-      });
+  //// On macOS, the window closing shouldn't quit the actual process.
+  // Instead, grab and activate a hidden menu item to enable the user to
+  // recreate the window on-demand.
+  if (isMac && menu) {
+    const macMenuItem = menu.getMenuItemById("macos-window-toggle");
+    if (macMenuItem) {
+      macMenuItem.enabled = true;
+      macMenuItem.visible = true;
+    }
+    return;
   }
+
+  app.quit();
 });
 
 app

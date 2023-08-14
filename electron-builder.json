@@ -86,7 +86,7 @@
     "buildResources": "assets",
     "output": "release/build"
   },
-  "extraResources": ["./assets/include/**", "./src/extraResources/**"],
+  "extraResources": ["./assets/include/**", "./src/extraResources/slippc"],
   "publish": {
     "provider": "github",
     "owner": "jimlah",

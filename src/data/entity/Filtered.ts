@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/explicit-member-accessibility */
 import { Entity, PrimaryColumn } from "typeorm";
 
-@Entity()
+@Entity("filtered")
 export class Filtered {
   @PrimaryColumn()
   FileName!: string;

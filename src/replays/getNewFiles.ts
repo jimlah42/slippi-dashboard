@@ -1,13 +1,13 @@
+import { createConnection } from "data/datasouce";
 import { Filtered } from "data/entity/Filtered";
 import * as fs from "fs-extra";
 import path from "path";
 
-import { dbSource } from "../data/datasouce";
 import { Stats } from "../data/entity/Stats";
 import type { FileWithPath } from "./types";
 
-export async function getNewFiles(folder: string): Promise<FileWithPath[]> {
-  const currentFiles = await getCurrentFiles();
+export async function getNewFiles(resPath: string, folder: string): Promise<FileWithPath[]> {
+  const currentFiles = await getCurrentFiles(resPath);
   const newFiles = [];
   const subDirectorys: string[] = [];
 
@@ -28,8 +28,8 @@ export async function getNewFiles(folder: string): Promise<FileWithPath[]> {
   return newFiles;
 }
 
-async function getCurrentFiles(): Promise<Set<string>> {
-  const db = await dbSource;
+async function getCurrentFiles(resPath: string): Promise<Set<string>> {
+  const db = await createConnection(resPath);
   const currentFiles = new Set<string>();
   const filtered = await db.manager.createQueryBuilder(Filtered, "filtered").select("filtered.FileName").getMany();
   const result = await db.manager.createQueryBuilder(Stats, "stats").select("stats.FileName").getMany();

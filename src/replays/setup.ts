@@ -1,5 +1,3 @@
-import { app } from "electron";
-
 import {
   ipc_clearCode,
   ipc_clearData,
@@ -11,7 +9,7 @@ import {
 } from "./ipc";
 import { createReplayWorker } from "./replays.worker.interface";
 
-export default function setupReplayIpc() {
+export default async function setupReplayIpc(resPath: string | undefined, dbPath: string) {
   const replayBrowserWorker = createReplayWorker();
 
   ipc_loadReplayFiles.main!.handle(async ({ files, playerCodes }) => {
@@ -19,45 +17,39 @@ export default function setupReplayIpc() {
     worker.getProgressObservable().subscribe((progress) => {
       ipc_loadProgressUpdatedEvent.main!.trigger(progress).catch(console.warn);
     });
-    let resPath;
-    if (app.isPackaged) {
-      resPath = process.resourcesPath;
-    } else {
-      resPath = undefined;
-    }
-    const result = await worker.loadReplayFiles(resPath, files, playerCodes);
+    const result = await worker.loadReplayFiles(resPath, dbPath, files, playerCodes);
     return result;
   });
   ipc_getNewFiles.main!.handle(async ({ path }) => {
     const worker = await replayBrowserWorker;
-    const result = await worker.getNewFilesInFolder(path);
+    const result = await worker.getNewFilesInFolder(dbPath, path);
     return result;
   });
 
   ipc_clearData.main!.handle(async () => {
     const worker = await replayBrowserWorker;
-    await worker.clearData();
-    await worker.refreshDB();
+    await worker.clearData(dbPath);
+    await worker.refreshDB(dbPath);
     return { success: true };
   });
 
   ipc_clearFiltered.main!.handle(async () => {
     const worker = await replayBrowserWorker;
-    await worker.clearFiltered();
-    await worker.refreshDB();
+    await worker.clearFiltered(dbPath);
+    await worker.refreshDB(dbPath);
     return { success: true };
   });
 
   ipc_clearCode.main!.handle(async ({ playerCode }) => {
     const worker = await replayBrowserWorker;
-    await worker.clearCode(playerCode);
-    await worker.refreshDB();
+    await worker.clearCode(dbPath, playerCode);
+    await worker.refreshDB(dbPath);
     return { success: true };
   });
 
   ipc_refreshDB.main!.handle(async () => {
     const worker = await replayBrowserWorker;
-    await worker.refreshDB().catch((err) => console.warn(err));
+    await worker.refreshDB(dbPath).catch((err) => console.warn(err));
     return { success: true };
   });
 }

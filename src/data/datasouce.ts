@@ -1,26 +1,11 @@
-import path from "path";
 import { exit } from "process";
+import type { DataSourceOptions } from "typeorm";
 import { DataSource } from "typeorm";
 
+/* eslint-disable new-cap */
+/* eslint-disable @typescript-eslint/explicit-member-accessibility */
 import { Filtered } from "./entity/Filtered";
 import { Stats } from "./entity/Stats";
-
-console.log("Resource path");
-console.log(process.resourcesPath);
-let db;
-if (process.resourcesPath) {
-  db = path.join(process.resourcesPath, "src", "extraResources", "test.sqlite3");
-} else {
-  db = path.join(path.dirname(__dirname), "extraResources", "test.sqlite3");
-}
-console.log(db);
-export const dbSourceConfig = new DataSource({
-  type: "better-sqlite3",
-  database: db,
-  entities: [Stats, Filtered],
-  synchronize: true,
-  logging: false,
-});
 
 // dbSourceConfig
 //   .initialize()
@@ -31,16 +16,33 @@ export const dbSourceConfig = new DataSource({
 //     console.log("Failed to initialise db", err);
 //     exit(1);
 //   });
+let db: DataSource;
 
-const connectToDB = async () => {
-  try {
-    await dbSourceConfig.initialize();
-    console.log("Initialised db");
-    return dbSourceConfig;
-  } catch (err) {
-    console.error("Error initialising DB", err);
-    exit(1);
+export async function createConnection(resPath: string): Promise<DataSource> {
+  if (!db) {
+    try {
+      const dbOptions: DataSourceOptions = {
+        type: "better-sqlite3",
+        database: resPath,
+        entities: [Stats, Filtered],
+        synchronize: true,
+        logging: false,
+      };
+      db = new DataSource(dbOptions);
+      await db.initialize();
+      console.log(resPath);
+      console.log("Initialised db");
+      return db;
+    } catch (err) {
+      console.error("Error initialising DB", err);
+      exit(1);
+    }
   }
-};
+  if (db.isInitialized) {
+    console.log("Returning initialized db");
+    return db;
+  }
 
-export const dbSource = connectToDB();
+  console.log("waiting for db");
+  return db.initialize();
+}

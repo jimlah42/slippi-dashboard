@@ -6,9 +6,9 @@ import setupReplayIpc from "../replays/setup";
 import setupMainIpc from "./setup";
 
 export const settingsManager = new SettingsManager();
-export function installModules() {
-  setupReplayIpc();
-  setupDashboardIpc();
+export async function installModules(resPath: string | undefined, dbPath: string) {
+  await setupReplayIpc(resPath, dbPath);
+  await setupDashboardIpc(dbPath);
   setupMainIpc();
   setupSettingsIpc(settingsManager);
   // return settingsManager;

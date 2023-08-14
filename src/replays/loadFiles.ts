@@ -1,6 +1,6 @@
+import { createConnection } from "data/datasouce";
 import path from "path";
 
-import { dbSource } from "../data/datasouce";
 import { Filtered } from "../data/entity/Filtered";
 import { Stats } from "../data/entity/Stats";
 // import { loadFile } from "./loadFile";
@@ -8,7 +8,8 @@ import { loadFileC } from "./loadFileC";
 import type { FilesLoadResult, FileWithPath, GameStats } from "./types";
 
 export async function loadFiles(
-  resourcesPath: string | undefined,
+  resPath: string | undefined,
+  dbPath: string,
   files: FileWithPath[],
   playerCodes: string[],
   callback: (current: number, total: number) => void = () => null,
@@ -19,9 +20,6 @@ export async function loadFiles(
       filesOmmitted: 0,
     };
   }
-
-  const db = await dbSource;
-  // const db = dbSourceConfig;
 
   // const gamesLoaded: GameStats[] = [];
   let vaildLoads = 0;
@@ -34,6 +32,7 @@ export async function loadFiles(
   const gamesList: GameStats[] = [];
 
   const filesSeen = new Set<string>();
+  const db = await createConnection(dbPath);
 
   function addToBlackList(fileName: string) {
     db.createQueryBuilder()
@@ -51,7 +50,7 @@ export async function loadFiles(
       setImmediate(async () => {
         totalLoads += 1;
         callback(totalLoads, total);
-        const res = await loadFileC(resourcesPath, path.join(file.path, file.fileName), playerCodes);
+        const res = await loadFileC(resPath, path.join(file.path, file.fileName), playerCodes);
         if (res == null) {
           addToBlackList(file.fileName);
           console.log("failed load");
