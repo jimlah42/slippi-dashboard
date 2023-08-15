@@ -18,19 +18,19 @@ import { Stats } from "./entity/Stats";
 //   });
 let db: DataSource;
 
-export async function createConnection(resPath: string): Promise<DataSource> {
+export async function createConnection(dbPath: string): Promise<DataSource> {
   if (!db) {
     try {
       const dbOptions: DataSourceOptions = {
         type: "better-sqlite3",
-        database: resPath,
+        database: dbPath,
         entities: [Stats, Filtered],
         synchronize: true,
         logging: false,
       };
       db = new DataSource(dbOptions);
       await db.initialize();
-      console.log(resPath);
+      console.log(dbPath);
       console.log("Initialised db");
       return db;
     } catch (err) {

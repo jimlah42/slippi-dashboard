@@ -9,11 +9,11 @@ import { addAvgsSelect, buildQueryFromParams, createCountQuery, executeCountQuer
 
 interface Methods {
   dispose: () => Promise<void>;
-  refreshDB: (resPath: string) => Promise<void>;
-  getWinLoss(resPath: string, params: QueryParams): Promise<{ Wins: number; Losses: number }>;
-  getPeriodAvgs(resPath: string, params: QueryParams): Promise<DataAvgs[]>;
-  getAvgs(resPath: string, params: QueryParams): Promise<DataAvgs>;
-  getCounts(resPath: string, params: QueryParams): Promise<DataCounts>;
+  refreshDB: (dbpath: string) => Promise<void>;
+  getWinLoss(dbpath: string, params: QueryParams): Promise<{ Wins: number; Losses: number }>;
+  getPeriodAvgs(dbpath: string, params: QueryParams): Promise<DataAvgs[]>;
+  getAvgs(dbpath: string, params: QueryParams): Promise<DataAvgs>;
+  getCounts(dbpath: string, params: QueryParams): Promise<DataCounts>;
 }
 
 export type WorkerSpec = ModuleMethods & Methods;
@@ -22,15 +22,15 @@ const methods: WorkerSpec = {
   async dispose(): Promise<void> {
     console.log("dashboard: dispose worker");
   },
-  async refreshDB(resPath: string): Promise<void> {
+  async refreshDB(dbPath: string): Promise<void> {
     console.log("Refreshing DB...");
-    const db = await createConnection(resPath);
+    const db = await createConnection(dbPath);
     await db.destroy();
     await db.initialize();
     console.log("Refreshed");
   },
-  async getWinLoss(resPath: string, params: QueryParams): Promise<{ Wins: number; Losses: number }> {
-    const db = await createConnection(resPath);
+  async getWinLoss(dbPath: string, params: QueryParams): Promise<{ Wins: number; Losses: number }> {
+    const db = await createConnection(dbPath);
     const winQuery: SelectQueryBuilder<Stats> = buildQueryFromParams(db, params);
     const lossQuery: SelectQueryBuilder<Stats> = buildQueryFromParams(db, params);
 
@@ -50,8 +50,8 @@ const methods: WorkerSpec = {
     };
   },
 
-  async getPeriodAvgs(resPath: string, params: QueryParams): Promise<DataAvgs[]> {
-    const db = await createConnection(resPath);
+  async getPeriodAvgs(dbPath: string, params: QueryParams): Promise<DataAvgs[]> {
+    const db = await createConnection(dbPath);
     let period;
     if (!params.period) {
       period = "none";
@@ -80,8 +80,8 @@ const methods: WorkerSpec = {
     return periodAvgs;
   },
 
-  async getAvgs(resPath: string, params: QueryParams): Promise<DataAvgs> {
-    const db = await createConnection(resPath);
+  async getAvgs(dbPath: string, params: QueryParams): Promise<DataAvgs> {
+    const db = await createConnection(dbPath);
     let query = buildQueryFromParams(db, params);
     query.select("COUNT(*)", "TotalGames");
     query = addAvgsSelect(query);
@@ -94,8 +94,8 @@ const methods: WorkerSpec = {
 
     return sums;
   },
-  async getCounts(resPath: string, params: QueryParams): Promise<DataCounts> {
-    const db = await createConnection(resPath);
+  async getCounts(dbPath: string, params: QueryParams): Promise<DataCounts> {
+    const db = await createConnection(dbPath);
     const characterQuery = createCountQuery(db, params, "stats.Character");
     const oppCharacterQuery = createCountQuery(db, params, "stats.oppCharacter");
     const oppCodeQuery = createCountQuery(db, params, "stats.OppCode");

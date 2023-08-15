@@ -6,8 +6,8 @@ import path from "path";
 import { Stats } from "../data/entity/Stats";
 import type { FileWithPath } from "./types";
 
-export async function getNewFiles(resPath: string, folder: string): Promise<FileWithPath[]> {
-  const currentFiles = await getCurrentFiles(resPath);
+export async function getNewFiles(dbPath: string, folder: string): Promise<FileWithPath[]> {
+  const currentFiles = await getCurrentFiles(dbPath);
   const newFiles = [];
   const subDirectorys: string[] = [];
 
@@ -28,8 +28,8 @@ export async function getNewFiles(resPath: string, folder: string): Promise<File
   return newFiles;
 }
 
-async function getCurrentFiles(resPath: string): Promise<Set<string>> {
-  const db = await createConnection(resPath);
+async function getCurrentFiles(dbPath: string): Promise<Set<string>> {
+  const db = await createConnection(dbPath);
   const currentFiles = new Set<string>();
   const filtered = await db.manager.createQueryBuilder(Filtered, "filtered").select("filtered.FileName").getMany();
   const result = await db.manager.createQueryBuilder(Stats, "stats").select("stats.FileName").getMany();

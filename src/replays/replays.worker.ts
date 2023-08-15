@@ -18,11 +18,11 @@ interface Methods {
     files: FileWithPath[],
     playerCodes: string[],
   ): Promise<FilesLoadResult>;
-  getNewFilesInFolder(resPath: string, path: string): Promise<FileWithPath[]>;
-  clearData(resPath: string): Promise<void>;
-  clearFiltered(resPath: string): Promise<void>;
-  clearCode(resPath: string, playerCode: string): Promise<void>;
-  refreshDB: (resPath: string) => Promise<void>;
+  getNewFilesInFolder(dbPath: string, path: string): Promise<FileWithPath[]>;
+  clearData(dbPath: string): Promise<void>;
+  clearFiltered(dbPath: string): Promise<void>;
+  clearCode(dbPath: string, playerCode: string): Promise<void>;
+  refreshDB: (dbPath: string) => Promise<void>;
 }
 
 export type WorkerSpec = ModuleMethods & Methods;
@@ -55,33 +55,33 @@ const methods: WorkerSpec = {
     return result;
   },
 
-  async getNewFilesInFolder(resPath: string, path: string): Promise<FileWithPath[]> {
-    const result = await getNewFiles(resPath, path);
+  async getNewFilesInFolder(dbPath: string, path: string): Promise<FileWithPath[]> {
+    const result = await getNewFiles(dbPath, path);
     return result;
   },
 
-  async clearData(resPath: string): Promise<void> {
-    const db = await createConnection(resPath);
+  async clearData(dbPath: string): Promise<void> {
+    const db = await createConnection(dbPath);
     console.log("Clearing all data...");
     await db.manager.clear(Stats);
     await db.manager.clear(Filtered);
     console.log("Data cleared");
   },
-  async clearFiltered(resPath: string): Promise<void> {
-    const db = await createConnection(resPath);
+  async clearFiltered(dbPath: string): Promise<void> {
+    const db = await createConnection(dbPath);
     console.log("Clearing filtered data...");
     await db.manager.clear(Filtered);
     console.log("Filtered cleared");
   },
-  async clearCode(resPath: string, playerCode: string): Promise<void> {
-    const db = await createConnection(resPath);
+  async clearCode(dbPath: string, playerCode: string): Promise<void> {
+    const db = await createConnection(dbPath);
     console.log("Clearing " + playerCode + "data...");
     await db.manager.delete(Stats, { Code: playerCode });
     console.log(playerCode + " cleared");
   },
 
-  async refreshDB(resPath: string): Promise<void> {
-    const db = await createConnection(resPath);
+  async refreshDB(dbPath: string): Promise<void> {
+    const db = await createConnection(dbPath);
     console.log("Refreshing DB...");
     await db.destroy();
     await db.initialize();
